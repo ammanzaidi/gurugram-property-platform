@@ -33,7 +33,142 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.homepage {
+  overflow-x: clip;
+  background: #f8fafc;
+}
+
+.site-header {
+  position: relative;
+  z-index: 20;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 10px 30px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.homepage-section {
+  position: relative;
+  isolation: isolate;
+}
+
+.homepage-section::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 44px 44px;
+  content: "";
+  mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+  opacity: 0.45;
+}
+
+.locations-section {
+  background: #f1f5f9;
+}
+
+.properties-section {
+  background: #f8fafc;
+}
+
+.how-section {
+  background: #eaf1f7;
+}
+
+.location-card,
+.property-card,
+.process-card {
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.location-mark {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.property-media {
+  background: linear-gradient(135deg, #17324d, #315c76 55%, #8da9b4);
+}
+
+.property-media-grid {
+  background-image: linear-gradient(120deg, transparent 0 44%, rgba(255, 255, 255, 0.14) 44% 45%, transparent 45%),
+    linear-gradient(180deg, transparent 0 54%, rgba(2, 6, 23, 0.32) 54% 55%, transparent 55%),
+    linear-gradient(90deg, transparent 0 22%, rgba(255, 255, 255, 0.12) 22% 23%, transparent 23% 47%, rgba(255, 255, 255, 0.1) 47% 48%, transparent 48%);
+  background-size: 100% 100%, 100% 100%, 100% 72%;
+  opacity: 0.9;
+}
+
+.property-media::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.04), rgba(15, 23, 42, 0.72));
+  content: "";
+}
+
+.property-media-badge {
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.process-number {
+  color: #52748f;
+  letter-spacing: 0.12em;
+}
+
+.process-card {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-section {
+  background: linear-gradient(120deg, #0f2538 0%, #183c56 55%, #0d1d30 100%);
+}
+
+.cta-section::before {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(120deg, transparent 0 54%, rgba(255, 255, 255, 0.07) 54% 54.2%, transparent 54.2%),
+    linear-gradient(90deg, transparent 0 72%, rgba(255, 255, 255, 0.05) 72% 72.2%, transparent 72.2%);
+  content: "";
+}
+
+.cta-section > div {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 639px) {
+  .site-header nav a,
+  .site-header nav button {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .hero-search-panel {
+    margin-inline: -0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .hero-backdrop {

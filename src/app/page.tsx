@@ -122,14 +122,14 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="homepage min-h-screen bg-white text-slate-900">
 
       {/* =====================================================
           HEADER
       ===================================================== */}
 
-      <header className="border-b border-slate-200">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+      <header className="site-header border-b border-slate-200 bg-white/95">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
 
           {/* LOGO */}
 
@@ -146,25 +146,25 @@ export default function Home() {
 
           {/* NAVIGATION */}
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 md:gap-5 lg:gap-8">
 
             <a
               href="#properties"
-              className="text-sm font-medium hover:text-slate-500"
+              className="hidden text-sm font-medium hover:text-slate-500 sm:inline"
             >
               Find Property
             </a>
 
             <a
               href="#locations"
-              className="text-sm font-medium hover:text-slate-500"
+              className="hidden text-sm font-medium hover:text-slate-500 sm:inline"
             >
               Locations
             </a>
 
             <a
               href="#how"
-              className="text-sm font-medium hover:text-slate-500"
+              className="hidden text-sm font-medium hover:text-slate-500 sm:inline"
             >
               How It Works
             </a>
@@ -343,7 +343,7 @@ export default function Home() {
 
       <section
         id="locations"
-        className="bg-slate-50 px-6 py-20 sm:py-24 md:py-32"
+        className="homepage-section locations-section px-4 py-20 sm:px-6 sm:py-24 md:py-28"
       >
 
         <div className="mx-auto max-w-7xl">
@@ -352,11 +352,11 @@ export default function Home() {
             Explore Gurugram
           </p>
 
-        <h2 className="mt-3 text-4xl font-bold">
+        <h2 className="mt-3 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
           Popular locations
         </h2>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
           {[
             "Sector 52",
@@ -369,19 +369,17 @@ export default function Home() {
 
             <div
               key={location}
-              className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300"
+              className="location-card rounded-2xl border border-slate-200/80 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
             >
 
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                Gurugram
-              </p>
+              <div className="location-mark" aria-hidden="true">GP</div>
 
               <h3 className="mt-2 text-lg font-bold">
                 {location}
               </h3>
 
-              <p className="mt-3 text-sm text-slate-500">
-                Explore rental properties →
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                Explore rental properties <span aria-hidden="true">→</span>
               </p>
 
             </div>
@@ -399,7 +397,7 @@ export default function Home() {
 
       <section
         id="properties"
-        className="bg-white py-20 sm:py-24 md:py-32"
+        className="homepage-section properties-section px-4 py-20 sm:px-6 sm:py-24 md:py-28"
       >
 
         <div className="mx-auto max-w-7xl px-6">
@@ -410,11 +408,11 @@ export default function Home() {
 
           <div className="mt-3 flex items-end justify-between">
 
-            <h2 className="text-4xl font-bold">
+            <h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
               Properties you may like
             </h2>
 
-            <button className="hidden rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold md:block">
+            <button className="hidden rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold transition hover:border-slate-900 hover:bg-slate-900 hover:text-white md:block">
               View all
             </button>
 
@@ -426,12 +424,21 @@ export default function Home() {
 
               <article
                 key={property.title}
-                className="property-card overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300"
+                className="property-card overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
               >
 
-                <div className="flex h-52 items-center justify-center bg-slate-200 overflow-hidden">
-                  <span className="text-sm text-slate-500">
-                    Property Image
+                <div className="property-media relative flex h-56 items-end overflow-hidden bg-slate-200 p-5">
+                  <div className="property-media-grid absolute inset-0" aria-hidden="true"></div>
+                  <div className="relative z-10">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+                      Gurugram living
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-white">
+                      {property.location}
+                    </p>
+                  </div>
+                  <span className="property-media-badge absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white">
+                    {property.type}
                   </span>
                 </div>
 
@@ -451,7 +458,7 @@ export default function Home() {
 
                     </div>
 
-                    <div className="text-right">
+                    <div className="shrink-0 text-right">
 
                       <p className="font-bold">
                         {property.rent}
@@ -465,11 +472,12 @@ export default function Home() {
 
                   </div>
 
-                  <div className="mt-5">
+                  <div className="mt-5 flex items-center justify-between gap-3">
 
-                    <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold">
+                    <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
                       {property.type}
                     </span>
+                    <span className="text-xs font-medium text-slate-400">Ready to explore</span>
 
                   </div>
 
@@ -495,7 +503,7 @@ export default function Home() {
 
       <section
         id="how"
-        className="bg-slate-50 px-6 py-20 sm:py-24 md:py-32"
+        className="homepage-section how-section px-4 py-20 sm:px-6 sm:py-24 md:py-28"
       >
 
         <div className="mx-auto max-w-7xl">
@@ -504,15 +512,15 @@ export default function Home() {
             Simple process
           </p>
 
-          <h2 className="mt-3 text-4xl font-bold">
+          <h2 className="mt-3 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
             From search to visit
           </h2>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="process-grid relative mt-10 grid gap-5 md:grid-cols-3">
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300">
+            <div className="process-card rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg sm:p-8">
 
-              <p className="text-sm font-bold text-slate-400">
+              <p className="process-number text-sm font-bold">
                 01
               </p>
 
@@ -527,9 +535,9 @@ export default function Home() {
 
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300">
+          <div className="process-card rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg sm:p-8">
 
-            <p className="text-sm font-bold text-slate-400">
+            <p className="process-number text-sm font-bold">
               02
             </p>
 
@@ -544,9 +552,9 @@ export default function Home() {
 
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300">
+          <div className="process-card rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg sm:p-8">
 
-            <p className="text-sm font-bold text-slate-400">
+            <p className="process-number text-sm font-bold">
               03
             </p>
 
@@ -570,15 +578,19 @@ export default function Home() {
           CTA
       ===================================================== */}
 
-      <section className="bg-gradient-to-b from-slate-900 to-slate-950 px-6 py-20 sm:py-24 md:py-32">
+      <section className="cta-section relative overflow-hidden px-4 py-20 sm:px-6 sm:py-24 md:py-28">
 
         <div className="mx-auto max-w-4xl text-center">
 
-          <h2 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">
+            Make your next move
+          </p>
+
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
             Ready to find your next home?
           </h2>
 
-          <p className="mx-auto mt-5 max-w-xl text-slate-300 text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
             Explore rental properties in Gurugram and let our team
             help you arrange the visit.
           </p>
@@ -598,15 +610,15 @@ export default function Home() {
           FOOTER
       ===================================================== */}
 
-      <footer className="border-t border-slate-200 bg-slate-950 text-slate-300">
+      <footer className="site-footer border-t border-slate-200 bg-slate-950 text-slate-300">
 
-        <div className="mx-auto flex max-w-7xl justify-between px-6 py-8 text-sm">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
           <p className="text-slate-400">
             © 2026 GurugramProperty
           </p>
 
-          <div className="flex gap-6 text-slate-400">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-slate-400">
 
             <span className="hover:text-slate-200 cursor-pointer transition">Privacy</span>
             <span className="hover:text-slate-200 cursor-pointer transition">Terms</span>
