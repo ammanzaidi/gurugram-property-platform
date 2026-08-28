@@ -33,6 +33,15 @@ function ContactContent() {
           credentials: "include",
         });
 
+        if (!response.ok) {
+          const redirectUrl = `/contact?propertyId=${propertyId}`;
+
+          router.push(
+            `/login?redirect=${encodeURIComponent(redirectUrl)}`
+          );
+          return;
+        }
+
         const result = await response.json();
 
         if (result.authenticated) {

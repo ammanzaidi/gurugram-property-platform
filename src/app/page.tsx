@@ -52,6 +52,11 @@ export default function Home() {
           credentials: "include",
         });
 
+        if (!response.ok) {
+          setUser(null);
+          return;
+        }
+
         const data = await response.json();
 
         if (data.success && data.authenticated) {
