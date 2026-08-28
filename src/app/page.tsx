@@ -208,7 +208,7 @@ export default function Home() {
                 </span>
 
                 <Link
-                  href={user.role.toUpperCase() === "ADMIN" ? "/admin" : user.role.toUpperCase() === "TENANT" ? "/my-enquiries" : "/my-properties"}
+                  href="/dashboard"
                   className="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold transition hover:bg-slate-100 lg:inline-flex"
                 >
                   Dashboard

@@ -22,9 +22,13 @@ export async function getCurrentSession() {
 }
 
 export async function requireRole(role: string) {
+  return requireAnyRole([role]);
+}
+
+export async function requireAnyRole(roles: string[]) {
   const session = await getCurrentSession();
   if (!session) return { session: null, error: "Please login first.", status: 401 as const };
-  if (session.user.role.toUpperCase() !== role.toUpperCase()) {
+  if (!roles.some((role) => session.user.role.toUpperCase() === role.toUpperCase())) {
     return { session: null, error: "Access denied.", status: 403 as const };
   }
   return { session, error: null, status: 200 as const };
