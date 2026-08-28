@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String   @unique
+  email     String?  @unique
+  password  String
+  role      String   @default("OWNER")
+  createdAt DateTime @default(now())
+
+  properties Property[]
+  sessions Session[]
+  enquiries Enquiry[]
+  notifications Notification[]
+}
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+model Property {
+  id                Int      @id @default(autoincrement())
+    ownerId      Int?
+  owner        User?    @relation(fields: [ownerId], references: [id])
+  propertyType      String
+  bhk               String
+  sector            String
+  monthlyRent       Int
+  furnishing        String
+  furnishingDetails String?
+  availableFrom     String
+  areaSqFt          Int @default(0)
+  vastu             String?
+  societyName       String
+  address           String
+  description       String?
+  ownerName         String
+  ownerPhone        String
+  ownerEmail        String
+  status            String @default("AVAILABLE")
+  createdAt         DateTime @default(now())
+  enquiries         Enquiry[]
+  media             PropertyMedia[]
+}
+model PropertyMedia {
+  id           Int      @id @default(autoincrement())
+  propertyId   Int
+  type         String
+  publicId     String   @unique
+  secureUrl    String
+  resourceType String
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, position])
+}
+model Enquiry {
+  id         Int      @id @default(autoincrement())
+
+  propertyId Int
+  tenantId   Int
+
+  name       String
+  phone      String
+  email      String?
+  message    String?
+  moveInDate String?
+
+  status     String   @default("NEW")
+
+  visitDate String?
+  visitTime String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant     User     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+}
+model Notification {
+  id        Int      @id @default(autoincrement())
+
+  userId    Int
+  enquiryId Int?
+
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enquiry Enquiry? @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([enquiryId])
+  @@index([createdAt])
+}

@@ -3,6 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Premium shadow layers for depth */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.15);
+  
+  /* Transition timing */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @theme inline {
@@ -23,4 +34,135 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ========================================================
+   PREMIUM CARD & CONTAINER EFFECTS
+   ======================================================== */
+
+/* Soft shadow on white containers */
+.shadow-sm {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Enhanced medium shadows for elevated cards */
+.shadow-md,
+.rounded-2xl,
+.rounded-3xl {
+  transition: box-shadow var(--transition-base), transform var(--transition-base) !important;
+}
+
+/* Cards with subtle lift on hover */
+@media (hover: hover) {
+  .rounded-2xl:not(.no-hover):hover,
+  .rounded-3xl:not(.no-hover):hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-2px) !important;
+  }
+  
+  /* Input and control focuses */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    box-shadow: var(--shadow-md), 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+/* ========================================================
+   IMAGE & MEDIA EFFECTS
+   ======================================================== */
+
+img {
+  transition: transform var(--transition-base) !important;
+}
+
+@media (hover: hover) {
+  .rounded-2xl img:hover,
+  .rounded-3xl img:hover {
+    transform: scale(1.03) !important;
+  }
+}
+
+/* ========================================================
+   BUTTON EFFECTS
+   ======================================================== */
+
+button {
+  transition: background-color var(--transition-base), 
+              box-shadow var(--transition-base),
+              transform var(--transition-fast) !important;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover {
+    transform: translateY(-1px) !important;
+  }
+  
+  button:not(:disabled):active {
+    transform: translateY(0) !important;
+  }
+}
+
+button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* Primary buttons with depth */
+.bg-slate-900,
+.bg-emerald-600,
+.bg-red-600 {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  transition: box-shadow var(--transition-base), 
+              transform var(--transition-base),
+              background-color var(--transition-base) !important;
+}
+
+@media (hover: hover) {
+  .bg-slate-900:not(:disabled):hover,
+  .bg-emerald-600:not(:disabled):hover,
+  .bg-red-600:not(:disabled):hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16) !important;
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* ========================================================
+   BORDER & OUTLINE EFFECTS
+   ======================================================== */
+
+/* Subtle depth on bordered elements */
+@media (hover: hover) {
+  .border:not(.no-hover):hover,
+  [class*="border-slate"]:not(.no-hover):hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+/* ========================================================
+   SECTION & CONTAINER EFFECTS
+   ======================================================== */
+
+/* Enhance existing shadows */
+[style*="box-shadow"] {
+  transition: box-shadow var(--transition-base), transform var(--transition-base) !important;
+}
+
+/* ========================================================
+   MOBILE OPTIMIZATIONS
+   ======================================================== */
+
+@media (max-width: 640px) {
+  @media (hover: hover) {
+    .rounded-2xl:not(.no-hover):hover,
+    .rounded-3xl:not(.no-hover):hover {
+      transform: translateY(-1px) !important;
+    }
+    
+    button:not(:disabled):hover {
+      transform: translateY(-0.5px) !important;
+    }
+  }
 }
