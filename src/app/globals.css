@@ -66,7 +66,18 @@ body {
 }
 
 .locations-section {
-  background: #f1f5f9;
+  background-image: linear-gradient(90deg, rgba(15, 37, 56, 0.9), rgba(30, 64, 88, 0.78)),
+    url("/gurugram-high-rise.jpg");
+  background-position: center 42%;
+  background-size: cover;
+}
+
+.locations-section > div > p {
+  color: rgba(226, 232, 240, 0.78) !important;
+}
+
+.locations-section h2 {
+  color: #ffffff;
 }
 
 .properties-section {
@@ -74,7 +85,10 @@ body {
 }
 
 .how-section {
-  background: #eaf1f7;
+  background-image: linear-gradient(rgba(234, 241, 247, 0.93), rgba(234, 241, 247, 0.97)),
+    url("/gurugram-high-rise.jpg");
+  background-position: center 55%;
+  background-size: cover;
 }
 
 .location-card,
@@ -99,7 +113,7 @@ body {
 }
 
 .property-media {
-  background: linear-gradient(135deg, #17324d, #315c76 55%, #8da9b4);
+  background: linear-gradient(135deg, #102a42, #315c76 55%, #91a9ad);
 }
 
 .property-media-grid {
@@ -108,6 +122,30 @@ body {
     linear-gradient(90deg, transparent 0 22%, rgba(255, 255, 255, 0.12) 22% 23%, transparent 23% 47%, rgba(255, 255, 255, 0.1) 47% 48%, transparent 48%);
   background-size: 100% 100%, 100% 100%, 100% 72%;
   opacity: 0.9;
+}
+
+.property-media-grid::before,
+.property-media-grid::after {
+  position: absolute;
+  bottom: -18%;
+  width: 31%;
+  height: 72%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 0;
+  background: linear-gradient(90deg, transparent 0 30%, rgba(255, 255, 255, 0.12) 30% 33%, transparent 33% 66%, rgba(255, 255, 255, 0.1) 66% 69%, transparent 69%);
+  content: "";
+  transform: skewX(-10deg);
+}
+
+.property-media-grid::before {
+  left: 8%;
+}
+
+.property-media-grid::after {
+  right: 8%;
+  height: 86%;
+  opacity: 0.7;
+  transform: skewX(8deg);
 }
 
 .property-media::after {
@@ -134,7 +172,10 @@ body {
 }
 
 .cta-section {
-  background: linear-gradient(120deg, #0f2538 0%, #183c56 55%, #0d1d30 100%);
+  background-image: linear-gradient(120deg, rgba(8, 25, 40, 0.94), rgba(24, 60, 86, 0.8) 55%, rgba(8, 23, 38, 0.94)),
+    url("/gurugram-high-rise.jpg");
+  background-position: center 58%;
+  background-size: cover;
 }
 
 .cta-section::before {
