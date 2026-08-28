@@ -458,6 +458,7 @@ main:not(.homepage) [class*="bg-emerald-50"] {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 
@@ -470,6 +471,71 @@ main:not(.homepage) [class*="bg-emerald-50"] {
   background:
     linear-gradient(90deg, rgba(2, 6, 23, 0.94) 0%, rgba(15, 23, 42, 0.78) 48%, rgba(15, 23, 42, 0.62) 100%),
     linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0.72) 100%);
+}
+
+.hero-accent {
+  color: #e5ad4f;
+}
+
+.locations-panel {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(135deg, rgba(7, 27, 49, 0.96), rgba(13, 55, 84, 0.82)), url("/gurugram-high-rise.jpg");
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 20px 45px rgba(9, 38, 64, 0.18);
+}
+
+.locations-panel::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -5rem;
+  width: 14rem;
+  height: 14rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2rem rgba(255, 255, 255, 0.04), 0 0 0 4rem rgba(255, 255, 255, 0.025);
+  content: "";
+}
+
+.locations-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.location-chip {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.11);
+  backdrop-filter: blur(8px);
+}
+
+.location-chip .location-mark {
+  width: 2rem;
+  height: 2rem;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.58rem;
+}
+
+.property-media-shade {
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(7, 27, 49, 0.04), rgba(7, 27, 49, 0.78));
+}
+
+.property-loading-grid {
+  min-height: 27rem;
+}
+
+.property-skeleton {
+  background: linear-gradient(100deg, #dbe5eb 20%, #edf3f7 40%, #dbe5eb 60%);
+  background-size: 200% 100%;
+  animation: property-skeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes property-skeleton {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 .hero-search-panel {

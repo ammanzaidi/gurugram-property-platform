@@ -3,26 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const properties = [
-  {
-    title: "Modern 2 BHK",
-    location: "Sector 67, Gurugram",
-    rent: "₹32,000",
-    type: "2 BHK",
-  },
-  {
-    title: "Premium 3 BHK",
-    location: "Sector 57, Gurugram",
-    rent: "₹48,000",
-    type: "3 BHK",
-  },
-  {
-    title: "Fully Furnished 1 BHK",
-    location: "Sector 52, Gurugram",
-    rent: "₹24,000",
-    type: "1 BHK",
-  },
-];
+type Property = {
+  id: number;
+  propertyType: string;
+  bhk: string;
+  sector: string;
+  monthlyRent: number;
+  furnishing: string;
+  societyName: string;
+  media: {
+    id: number;
+    type: string;
+    secureUrl: string;
+    position: number;
+  }[];
+};
 
 type User = {
   id: number;
@@ -39,6 +34,9 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("Any Property");
   const [budget, setBudget] = useState("Any Budget");
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [propertiesError, setPropertiesError] = useState("");
 
   // =========================================================
   // CHECK LOGIN STATUS
@@ -73,6 +71,34 @@ export default function Home() {
     }
 
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    async function loadFeaturedProperties() {
+      try {
+        const response = await fetch("/api/properties", {
+          cache: "no-store",
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "Failed to load properties.");
+        }
+
+        setProperties(result.properties || []);
+      } catch (error) {
+        console.error("Failed to load featured properties:", error);
+        setPropertiesError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load properties right now."
+        );
+      } finally {
+        setPropertiesLoading(false);
+      }
+    }
+
+    loadFeaturedProperties();
   }, []);
 
   // =========================================================
@@ -225,7 +251,7 @@ export default function Home() {
           HERO
       ===================================================== */}
 
-      <section className="hero-shell relative min-h-[720px] overflow-hidden bg-slate-950 md:min-h-[780px] lg:min-h-screen">
+      <section className="hero-shell relative mx-3 min-h-[720px] overflow-hidden rounded-[2rem] bg-slate-950 shadow-2xl sm:mx-5 md:min-h-[780px] lg:mx-6 lg:min-h-[calc(100vh-7rem)]">
         {/* Background Image with Overlay */}
         <div
           className="hero-backdrop absolute inset-0 bg-cover bg-no-repeat"
@@ -238,7 +264,7 @@ export default function Home() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-between px-6 py-12 sm:py-16 md:py-20">
+        <div className="relative mx-auto flex min-h-[720px] max-w-7xl flex-col justify-between px-6 py-12 sm:min-h-[780px] sm:py-16 md:px-12 md:py-20">
 
           {/* Text Content */}
           <div className="flex flex-col justify-center flex-1 max-w-3xl">
@@ -250,7 +276,7 @@ export default function Home() {
             <h2 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
               Find a place
               <br />
-              <span className="bg-gradient-to-r from-slate-300 to-slate-400 bg-clip-text text-transparent">
+              <span className="hero-accent">
                 you can call home.
               </span>
             </h2>
@@ -341,56 +367,6 @@ export default function Home() {
           LOCATIONS
       ===================================================== */}
 
-      <section
-        id="locations"
-        className="homepage-section locations-section px-4 py-20 sm:px-6 sm:py-24 md:py-28"
-      >
-
-        <div className="mx-auto max-w-7xl">
-
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
-            Explore Gurugram
-          </p>
-
-        <h2 className="mt-3 max-w-xl text-3xl font-bold tracking-tight sm:text-4xl">
-          Popular locations
-        </h2>
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-          {[
-            "Sector 52",
-            "Sector 57",
-            "Sector 65",
-            "Sector 66",
-            "Sector 67",
-            "Golf Course Road",
-          ].map((location) => (
-
-            <div
-              key={location}
-              className="location-card rounded-2xl border border-slate-200/80 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
-            >
-
-              <div className="location-mark" aria-hidden="true">GP</div>
-
-              <h3 className="mt-2 text-lg font-bold">
-                {location}
-              </h3>
-
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                Explore rental properties <span aria-hidden="true">→</span>
-              </p>
-
-            </div>
-
-          ))}
-
-        </div>
-
-        </div>
-      </section>
-
       {/* =====================================================
           PROPERTIES
       ===================================================== */}
@@ -400,7 +376,7 @@ export default function Home() {
         className="homepage-section properties-section px-4 py-20 sm:px-6 sm:py-24 md:py-28"
       >
 
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-7xl px-0">
 
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
             Featured homes
@@ -412,85 +388,113 @@ export default function Home() {
               Properties you may like
             </h2>
 
-            <button className="hidden rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold transition hover:border-slate-900 hover:bg-slate-900 hover:text-white md:block">
-              View all
-            </button>
+            <Link href="/properties" className="inline-flex shrink-0 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold transition hover:border-slate-900 hover:bg-slate-900 hover:text-white sm:px-5 sm:text-sm">
+              View all properties <span aria-hidden="true">→</span>
+            </Link>
 
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(19rem,0.95fr)]">
 
-            {properties.map((property) => (
-
-              <article
-                key={property.title}
-                className="property-card overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
-              >
-
-                <div className="property-media relative flex h-56 items-end overflow-hidden bg-slate-200 p-5">
-                  <div className="property-media-grid absolute inset-0" aria-hidden="true"></div>
-                  <div className="relative z-10">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
-                      Gurugram living
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-white">
-                      {property.location}
-                    </p>
-                  </div>
-                  <span className="property-media-badge absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white">
-                    {property.type}
-                  </span>
+            <div className="min-w-0">
+              {propertiesLoading && (
+                <div className="property-loading-grid grid gap-6 md:grid-cols-3" aria-label="Loading properties">
+                  {[1, 2, 3].map((item) => <div key={item} className="property-skeleton h-[27rem] rounded-3xl" />)}
                 </div>
+              )}
 
-                <div className="p-6">
-
-                  <div className="flex items-start justify-between gap-4">
-
-                    <div>
-
-                      <h3 className="text-lg font-bold">
-                        {property.title}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        {property.location}
-                      </p>
-
-                    </div>
-
-                    <div className="shrink-0 text-right">
-
-                      <p className="font-bold">
-                        {property.rent}
-                      </p>
-
-                      <p className="text-xs text-slate-400">
-                        / month
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between gap-3">
-
-                    <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-                      {property.type}
-                    </span>
-                    <span className="text-xs font-medium text-slate-400">Ready to explore</span>
-
-                  </div>
-
-                  <button className="mt-6 w-full rounded-xl border border-slate-200 py-3 text-sm font-bold transition hover:bg-slate-900 hover:text-white">
-                    View Property
-                  </button>
-
+              {!propertiesLoading && propertiesError && (
+                <div className="empty-state rounded-3xl p-8 text-center">
+                  <h3 className="text-xl font-bold">Properties are temporarily unavailable</h3>
+                  <p className="mt-2 text-sm text-slate-500">Please try again in a moment.</p>
                 </div>
+              )}
 
-              </article>
+              {!propertiesLoading && !propertiesError && properties.length === 0 && (
+                <div className="empty-state rounded-3xl p-8 text-center">
+                  <h3 className="text-xl font-bold">No properties available yet</h3>
+                  <p className="mt-2 text-sm text-slate-500">New Gurugram listings will appear here.</p>
+                </div>
+              )}
 
-            ))}
+              {!propertiesLoading && !propertiesError && properties.length > 0 && (
+                <div className="grid gap-6 md:grid-cols-3">
 
+                  {properties.slice(0, 3).map((property) => {
+                    const firstImage = property.media?.find((media) => media.type === "IMAGE");
+                    return (
+
+                      <article
+                        key={property.id}
+                        className="property-card overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
+                      >
+
+                        <div className="property-media relative flex h-56 items-end overflow-hidden bg-slate-200 p-5">
+                          {firstImage ? (
+                            <img src={firstImage.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="absolute inset-0 h-full w-full object-cover" />
+                          ) : <div className="property-media-grid absolute inset-0" aria-hidden="true"></div>}
+                          <div className="property-media-shade absolute inset-0" aria-hidden="true"></div>
+                          <div className="relative z-10">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">{property.societyName}</p>
+                            <p className="mt-1 text-lg font-semibold text-white">{property.sector}, Gurugram</p>
+                          </div>
+                          <span className="property-media-badge absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white">{property.bhk}</span>
+                        </div>
+
+                        <div className="p-6">
+
+                          <div className="flex items-start justify-between gap-4">
+
+                            <div className="min-w-0">
+
+                              <h3 className="text-lg font-bold">{property.bhk} {property.propertyType}</h3>
+
+                              <p className="mt-1 truncate text-sm text-slate-500">{property.societyName}</p>
+
+                            </div>
+
+                            <div className="shrink-0 text-right">
+
+                              <p className="font-bold">₹{property.monthlyRent.toLocaleString("en-IN")}</p>
+
+                              <p className="text-xs text-slate-400">/ month</p>
+
+                            </div>
+
+                          </div>
+
+                          <div className="mt-5 flex items-center justify-between gap-3">
+
+                            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">{property.furnishing}</span>
+                            <span className="text-xs font-medium text-slate-400">{property.bhk}</span>
+
+                          </div>
+
+                          <Link href={`/property/${property.id}`} className="mt-6 flex items-center justify-center rounded-xl border border-slate-200 py-3 text-sm font-bold transition hover:bg-slate-900 hover:text-white">View Property <span className="ml-2" aria-hidden="true">→</span></Link>
+
+                        </div>
+
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
+
+            <div id="locations" className="locations-panel rounded-3xl p-6 sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Explore Gurugram</p>
+              <h2 className="mt-3 text-3xl font-bold text-white">Popular locations</h2>
+              <div className="mt-7 grid grid-cols-2 gap-3">
+                {["Sector 52", "Sector 57", "Sector 65", "Sector 66", "Sector 67", "Golf Course Road"].map((area) => (
+                  <Link key={area} href={`/properties?location=${encodeURIComponent(area)}`} className="location-chip rounded-2xl p-4 text-white transition hover:-translate-y-1">
+                    <span className="location-mark" aria-hidden="true">GP</span>
+                    <span className="mt-3 block text-sm font-bold">{area}</span>
+                    <span className="mt-1 block text-xs text-slate-300">Explore properties <span aria-hidden="true">→</span></span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
 
         </div>
