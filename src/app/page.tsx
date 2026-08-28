@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const properties = [
   {
@@ -127,7 +128,7 @@ export default function Home() {
 
           {/* LOGO */}
 
-          <a href="/" className="block">
+          <Link href="/" className="block">
             <h1 className="text-xl font-bold">
               Gurugram
               <span className="text-slate-500">Property</span>
@@ -136,7 +137,7 @@ export default function Home() {
             <p className="text-xs text-slate-400">
               Find. Visit. Move.
             </p>
-          </a>
+          </Link>
 
           {/* NAVIGATION */}
 
@@ -219,16 +220,16 @@ export default function Home() {
           HERO
       ===================================================== */}
 
-      <section className="relative min-h-screen overflow-hidden bg-slate-950">
+      <section className="hero-shell relative min-h-[720px] overflow-hidden bg-slate-950 md:min-h-[780px] lg:min-h-screen">
         {/* Background Image with Overlay */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        <div
+          className="hero-backdrop absolute inset-0 bg-cover bg-no-repeat"
           style={{
-            backgroundImage: 'url("https://images.unsplash.com/photo-1545324418-cc1a9a6fded0?w=1920&h=1080&fit=crop")',
+            backgroundImage: 'url("/gurugram-high-rise.jpg")',
           }}
         >
           {/* Dark Navy Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/85 to-slate-950/70"></div>
+          <div className="hero-overlay absolute inset-0"></div>
         </div>
 
         {/* Hero Content */}
@@ -259,11 +260,11 @@ export default function Home() {
           {/* SEARCH - Overlapping Box */}
 
           <div className="relative z-10 -mb-20 mx-auto w-full max-w-4xl">
-            <div className="rounded-3xl bg-white p-3 shadow-2xl sm:p-4 backdrop-blur-sm">
+            <div className="hero-search-panel rounded-3xl bg-white p-3 shadow-2xl sm:p-4">
 
               <div className="grid gap-3 grid-cols-1 sm:gap-2 sm:grid-cols-2 lg:grid-cols-4">
 
-              <div className="rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
+              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
 
                 <p className="text-xs font-bold uppercase text-slate-400">
                   Location
@@ -279,7 +280,7 @@ export default function Home() {
 />
               </div>
 
-              <div className="rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
+              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
 
                 <p className="text-xs font-bold uppercase text-slate-400">
                   Property
@@ -298,7 +299,7 @@ export default function Home() {
 
               </div>
 
-              <div className="rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
+              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
 
                 <p className="text-xs font-bold uppercase text-slate-400">
                   Budget
@@ -420,7 +421,7 @@ export default function Home() {
 
               <article
                 key={property.title}
-                className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300"
+                className="property-card overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-slate-300"
               >
 
                 <div className="flex h-52 items-center justify-center bg-slate-200 overflow-hidden">
