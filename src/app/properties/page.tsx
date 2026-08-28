@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 type Property = {
   id: number;
@@ -25,7 +25,7 @@ type Property = {
   createdAt: string;
 };
 
-export default function PropertiesPage() {
+function PropertiesPageContent() {
     const searchParams = useSearchParams();
 
   const location = searchParams.get("location");
@@ -68,7 +68,7 @@ const response = await fetch(`/api/properties?${params.toString()}`);
   }, [location, propertyType, budget]);
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="app-page properties-page min-h-screen bg-slate-50">
       {/* HEADER */}
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
@@ -144,7 +144,9 @@ const response = await fetch(`/api/properties?${params.toString()}`);
                       className="h-full w-full object-cover transition duration-200 hover:scale-105"
                     />
                   ) : (
-                    <span className="text-5xl">🏠</span>
+                    <div className="media-fallback" aria-label="Property preview">
+                      <span>Gurugram living</span>
+                    </div>
                   )}
                 </div>
 
@@ -194,5 +196,21 @@ const response = await fetch(`/api/properties?${params.toString()}`);
         )}
       </section>
     </main>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="app-page properties-page flex min-h-screen items-center justify-center bg-slate-50">
+          <div className="rounded-2xl border border-slate-200 bg-white px-8 py-6 text-sm text-slate-500 shadow-sm">
+            Loading properties...
+          </div>
+        </main>
+      }
+    >
+      <PropertiesPageContent />
+    </Suspense>
   );
 }

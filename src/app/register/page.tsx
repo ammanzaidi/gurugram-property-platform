@@ -66,7 +66,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="app-page auth-page min-h-screen bg-slate-50">
       <header className="border-b bg-white">
         <div className="mx-auto max-w-7xl px-6 py-5">
           <a href="/" className="text-xl font-bold">

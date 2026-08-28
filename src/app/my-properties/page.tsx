@@ -56,7 +56,7 @@ export default function MyPropertiesPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="app-page dashboard-page min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
           <Link href="/" className="text-xl font-semibold tracking-tight">
@@ -101,7 +101,7 @@ export default function MyPropertiesPage() {
                 <article key={property.id} className="min-w-0 overflow-hidden rounded-2xl bg-white shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1">
                   <div className="grid sm:grid-cols-[180px_1fr]">
                     <div className="flex min-h-44 items-center justify-center bg-slate-200 sm:min-h-full overflow-hidden">
-                      {firstImage ? <img src={firstImage.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="h-full min-h-44 w-full object-cover transition duration-200 hover:scale-105" /> : <span className="text-5xl">🏠</span>}
+                      {firstImage ? <img src={firstImage.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="h-full min-h-44 w-full object-cover transition duration-200 hover:scale-105" /> : <div className="media-fallback" aria-label="Property preview"><span>Gurugram living</span></div>}
                     </div>
                     <div className="min-w-0 p-5 sm:p-6">
                       <div className="flex flex-wrap items-start justify-between gap-3">

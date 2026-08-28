@@ -268,7 +268,7 @@ export default function ListProperty() {
   // ye screen show hogi.
   if (submitted) {
     return (
-      <main className="min-h-screen bg-slate-50">
+      <main className="app-page form-page min-h-screen bg-slate-50">
         {/* WEBSITE HEADER */}
         <header className="border-b bg-white">
           <div className="mx-auto max-w-7xl px-6 py-5">
@@ -309,7 +309,7 @@ export default function ListProperty() {
   // MAIN PROPERTY LISTING FORM
   // ---------------------------------------------------------
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="app-page form-page min-h-screen bg-slate-50">
 
       {/* =====================================================
           HEADER

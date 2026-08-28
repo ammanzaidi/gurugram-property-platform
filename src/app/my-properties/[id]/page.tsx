@@ -256,12 +256,12 @@ export default function ManagePropertyPage() {
     }
   }
 
-  if (!Number.isInteger(propertyId) || propertyId <= 0) return <main className="flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><p className="text-red-700">Invalid property ID.</p><Link href="/my-properties" className="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to My Properties</Link></div></main>;
-  if (loading) return <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading property...</main>;
-  if (!property) return <main className="flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><p className="text-red-700">{error || "Property not found."}</p><Link href="/my-properties" className="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to My Properties</Link></div></main>;
+  if (!Number.isInteger(propertyId) || propertyId <= 0) return <main className="app-page form-page flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><p className="text-red-700">Invalid property ID.</p><Link href="/my-properties" className="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to My Properties</Link></div></main>;
+  if (loading) return <main className="app-page form-page flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading property...</main>;
+  if (!property) return <main className="app-page form-page flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><p className="text-red-700">{error || "Property not found."}</p><Link href="/my-properties" className="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to My Properties</Link></div></main>;
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="app-page form-page min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
           <Link href="/my-properties" className="text-xl font-semibold tracking-tight">My Properties</Link>

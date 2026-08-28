@@ -23,17 +23,266 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
+  background: #eef3f7;
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+main:not(.homepage) {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(181, 203, 214, 0.22), transparent 28rem),
+    #eef3f7;
+}
+
+main:not(.homepage) > header,
+main:not(.homepage) header {
+  border-color: #dbe4ea;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+main:not(.homepage) > section,
+main:not(.homepage) > div > section {
+  position: relative;
+}
+
+main:not(.homepage) h1,
+main:not(.homepage) h2,
+main:not(.homepage) h3 {
+  letter-spacing: -0.025em;
+}
+
+main:not(.homepage) input,
+main:not(.homepage) textarea,
+main:not(.homepage) select {
+  min-height: 3rem;
+  border-color: #cbd8e1;
+  background: rgba(255, 255, 255, 0.92);
+  color: #172b3d;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
+}
+
+main:not(.homepage) input::placeholder,
+main:not(.homepage) textarea::placeholder {
+  color: #94a3b8;
+}
+
+main:not(.homepage) input:focus,
+main:not(.homepage) textarea:focus,
+main:not(.homepage) select:focus {
+  border-color: #52748f;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(82, 116, 143, 0.14) !important;
+  outline: none;
+  transform: none !important;
+}
+
+main:not(.homepage) button,
+main:not(.homepage) a[class*="bg-slate-900"] {
+  min-height: 2.75rem;
+}
+
+main:not(.homepage) button:focus-visible,
+main:not(.homepage) a:focus-visible,
+.homepage button:focus-visible,
+.homepage a:focus-visible {
+  outline: 3px solid rgba(196, 148, 73, 0.55);
+  outline-offset: 3px;
+}
+
+main:not(.homepage) .bg-white.rounded-2xl,
+main:not(.homepage) .bg-white.rounded-3xl {
+  border: 1px solid #dce5eb;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+main:not(.homepage) .bg-white.rounded-2xl:hover,
+main:not(.homepage) .bg-white.rounded-3xl:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.11) !important;
+}
+
+main:not(.homepage) [class*="bg-red-50"],
+main:not(.homepage) [class*="bg-green-50"],
+main:not(.homepage) [class*="bg-emerald-50"] {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.app-page {
+  color: #172b3d;
+}
+
+.app-page > section,
+.app-page > div > section {
+  max-width: 80rem;
+}
+
+.app-page .media-fallback {
+  position: relative;
+  display: flex;
+  min-height: 12rem;
+  width: 100%;
+  align-items: flex-end;
+  overflow: hidden;
+  padding: 1.25rem;
+  background-image: linear-gradient(135deg, rgba(16, 42, 66, 0.98), rgba(49, 92, 118, 0.84)), url("/gurugram-high-rise.jpg");
+  background-position: center;
+  background-size: cover;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.app-page .media-fallback::after {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(120deg, transparent 0 44%, rgba(255, 255, 255, 0.15) 44% 45%, transparent 45%), linear-gradient(90deg, transparent 0 25%, rgba(255, 255, 255, 0.12) 25% 26%, transparent 26% 55%, rgba(255, 255, 255, 0.1) 55% 56%, transparent 56%);
+  content: "";
+}
+
+.app-page .media-fallback span {
+  position: relative;
+  z-index: 1;
+}
+
+.app-page .property-card,
+.app-page article,
+.app-page [class*="rounded-2xl"],
+.app-page [class*="rounded-3xl"] {
+  border-color: #dce5eb;
+}
+
+.app-page .property-card {
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.app-page [style*="padding: \"40px\""],
+.app-page [style*="padding: \"30px\""],
+.app-page [style*="padding: \"20px\""],
+.app-page [style*="background: \"white\""],
+.app-page [style*="background: white"] {
+  border-radius: 1.25rem;
+}
+
+.dashboard-page [style*="background: white"],
+.dashboard-page [style*="background: \"white\""],
+.dashboard-page [style*="background: 'white'"] {
+  border: 1px solid #dce5eb;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+.dashboard-page table {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid #dce5eb;
+  border-radius: 1rem;
+  background: #ffffff;
+}
+
+.dashboard-page th {
+  background: #edf3f7;
+  color: #36536a;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dashboard-page td,
+.dashboard-page th {
+  border-color: #e2e8f0 !important;
+}
+
+.detail-page .bg-slate-200 {
+  border: 1px solid #d5e0e7;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+}
+
+.detail-page .bg-slate-950 {
+  background: #102a42;
+}
+
+.detail-page .bg-white {
+  border-color: #dce5eb;
+}
+
+.form-page form > h2,
+.form-page form > div > h2 {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.8rem;
+}
+
+.form-page input[type="file"] {
+  min-height: 4rem;
+  border-style: dashed;
+  background: #f7fafc;
+}
+
+.form-page input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: #173b55;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.6rem 0.8rem;
+}
+
+.empty-state {
+  border: 1px dashed #b8c9d4;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.properties-page > section,
+.dashboard-page > section,
+.form-page > section {
+  margin-inline: auto;
+}
+
+.auth-page > section {
+  background-image: linear-gradient(120deg, rgba(238, 243, 247, 0.9), rgba(248, 250, 252, 0.98)), url("/gurugram-high-rise.jpg");
+  background-position: center;
+  background-size: cover;
+}
+
+.auth-page > section > div,
+.form-page form,
+.form-page > section > div,
+.dashboard-page [style*="background: white"],
+.dashboard-page [style*="background: \"white\""],
+.dashboard-page [style*="background: 'white'"] {
+  border: 1px solid #dce5eb;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+}
+
+.form-page h2 {
+  color: #1f4058;
+}
+
+.site-footer {
+  background: linear-gradient(120deg, #0c1f31, #163b55);
+}
+
+@media (max-width: 640px) {
+  main:not(.homepage) > header > div,
+  main:not(.homepage) header > div {
+    padding-inline: 1rem;
+  }
+
+  .app-page > section,
+  .app-page > div > section {
+    padding-inline: 1rem;
+  }
+
+  .app-page .media-fallback {
+    min-height: 11rem;
+  }
 }
 
 .homepage {
@@ -248,16 +497,16 @@ body {
 }
 
 /* Enhanced medium shadows for elevated cards */
-.shadow-md,
-.rounded-2xl,
-.rounded-3xl {
+.shadow-md {
   transition: box-shadow var(--transition-base), transform var(--transition-base) !important;
 }
 
 /* Cards with subtle lift on hover */
 @media (hover: hover) {
-  .rounded-2xl:not(.no-hover):hover,
-  .rounded-3xl:not(.no-hover):hover {
+  .interactive-card:hover,
+  .property-card:hover,
+  .location-card:hover,
+  .process-card:hover {
     box-shadow: var(--shadow-lg) !important;
     transform: translateY(-2px) !important;
   }
@@ -267,7 +516,7 @@ body {
   textarea:focus,
   select:focus {
     box-shadow: var(--shadow-md), 0 0 0 3px rgba(15, 23, 42, 0.1) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
   }
 }
 
@@ -280,8 +529,9 @@ img {
 }
 
 @media (hover: hover) {
-  .rounded-2xl img:hover,
-  .rounded-3xl img:hover {
+  .interactive-card img:hover,
+  .property-card img:hover,
+  .gallery-thumbnail img:hover {
     transform: scale(1.03) !important;
   }
 }
@@ -298,11 +548,7 @@ button {
 
 @media (hover: hover) {
   button:not(:disabled):hover {
-    transform: translateY(-1px) !important;
-  }
-  
-  button:not(:disabled):active {
-    transform: translateY(0) !important;
+    filter: brightness(0.97);
   }
 }
 
@@ -336,10 +582,11 @@ button:disabled {
 
 /* Subtle depth on bordered elements */
 @media (hover: hover) {
-  .border:not(.no-hover):hover,
-  [class*="border-slate"]:not(.no-hover):hover {
-    box-shadow: var(--shadow-md) !important;
-    transform: translateY(-1px) !important;
+  .interactive-card:hover,
+  .property-card:hover,
+  .location-card:hover,
+  .process-card:hover {
+    border-color: #b8c9d4;
   }
 }
 
@@ -358,13 +605,11 @@ button:disabled {
 
 @media (max-width: 640px) {
   @media (hover: hover) {
-    .rounded-2xl:not(.no-hover):hover,
-    .rounded-3xl:not(.no-hover):hover {
+    .interactive-card:hover,
+    .property-card:hover,
+    .location-card:hover,
+    .process-card:hover {
       transform: translateY(-1px) !important;
-    }
-    
-    button:not(:disabled):hover {
-      transform: translateY(-0.5px) !important;
     }
   }
 }
