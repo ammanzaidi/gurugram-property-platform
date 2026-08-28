@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const phone = data.phone?.trim();
     const email = data.email?.trim() || null;
     const password = data.password;
+    const role = data.role === "TENANT" ? "TENANT" : "OWNER";
 
     // Basic validation
     if (!name || !phone || !password) {
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
         phone,
         email,
         password: hashedPassword,
-        role: "OWNER",
+        role,
       },
       select: {
         id: true,
@@ -97,10 +98,10 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("========== SIGNUP ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
+    console.error("Message:", error instanceof Error ? error.message : "Unknown error");
     console.error("=================================");
 
     return NextResponse.json(

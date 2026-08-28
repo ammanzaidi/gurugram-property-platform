@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [accountType, setAccountType] = useState("OWNER");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +43,7 @@ export default function RegisterPage() {
           phone,
           email,
           password,
+          role: accountType,
         }),
       });
 
@@ -69,10 +72,10 @@ export default function RegisterPage() {
     <main className="app-page auth-page min-h-screen bg-slate-50">
       <header className="border-b bg-white">
         <div className="mx-auto max-w-7xl px-6 py-5">
-          <a href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold">
             Gurugram
             <span className="text-slate-500">Property</span>
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -91,6 +94,20 @@ export default function RegisterPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <div>
+              <label htmlFor="accountType" className="text-sm font-semibold">
+                Account type
+              </label>
+              <select
+                id="accountType"
+                value={accountType}
+                onChange={(event) => setAccountType(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
+              >
+                <option value="OWNER">Owner / Broker</option>
+                <option value="TENANT">Tenant</option>
+              </select>
+            </div>
             <div>
               <label className="text-sm font-semibold">
                 Full Name

@@ -207,6 +207,22 @@ export default function Home() {
                   Hi, {user.name}
                 </span>
 
+                <Link
+                  href={user.role.toUpperCase() === "ADMIN" ? "/admin" : user.role.toUpperCase() === "TENANT" ? "/my-enquiries" : "/my-properties"}
+                  className="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold transition hover:bg-slate-100 lg:inline-flex"
+                >
+                  Dashboard
+                </Link>
+
+                {user.role.toUpperCase() === "TENANT" && (
+                  <Link
+                    href="/my-visits"
+                    className="hidden text-sm font-medium hover:text-slate-500 lg:inline"
+                  >
+                    My Visits
+                  </Link>
+                )}
+
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
