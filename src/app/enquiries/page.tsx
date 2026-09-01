@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type Enquiry = {
   id: number;
@@ -37,12 +38,14 @@ const STATUS_OPTIONS = [
 ];
 
 export default function EnquiriesPage() {
+  const searchParams = useSearchParams();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [hasManualStatusFilter, setHasManualStatusFilter] = useState(false);
 
   const [selectedStatus, setSelectedStatus] = useState<
     Record<number, string>
@@ -101,11 +104,9 @@ export default function EnquiriesPage() {
         setSelectedStatus(statusMap);
         setVisitDates(dateMap);
         setVisitTimes(timeMap);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(
-          err?.message || "Failed to load enquiries."
-        );
+        setError(err instanceof Error ? err.message : "Failed to load enquiries.");
       } finally {
         setLoading(false);
       }
@@ -119,12 +120,15 @@ export default function EnquiriesPage() {
   // =========================================================
 
   const filteredEnquiries = useMemo(() => {
-    const searchText = search.trim().toLowerCase();
+    const requestedStatus = searchParams.get("status");
+    const requestedEnquiryId = searchParams.get("enquiryId");
+    const activeStatusFilter = !hasManualStatusFilter && requestedStatus && STATUS_OPTIONS.includes(requestedStatus) ? requestedStatus : statusFilter;
+    const searchText = (search || (/^\d+$/.test(requestedEnquiryId || "") ? requestedEnquiryId ?? "" : "")).trim().toLowerCase();
 
     return enquiries.filter((enquiry) => {
       const matchesStatus =
-        statusFilter === "ALL" ||
-        enquiry.status === statusFilter;
+        activeStatusFilter === "ALL" ||
+        enquiry.status === activeStatusFilter;
 
       const matchesSearch =
         !searchText ||
@@ -139,9 +143,17 @@ export default function EnquiriesPage() {
           .toLowerCase()
           .includes(searchText);
 
-      return matchesStatus && matchesSearch;
+      const requestedFilter = searchParams.get("filter");
+      const today = new Date().toISOString().slice(0, 10);
+      const matchesVisitFilter = requestedFilter === "upcoming-visits"
+        ? enquiry.status === "VISIT_SCHEDULED" && (enquiry.visitDate?.localeCompare(today) ?? -1) >= 0
+        : requestedFilter === "completed-visits"
+          ? enquiry.status === "VISIT_COMPLETED"
+          : true;
+
+      return matchesStatus && matchesSearch && matchesVisitFilter;
     });
-  }, [enquiries, search, statusFilter]);
+  }, [enquiries, hasManualStatusFilter, search, searchParams, statusFilter]);
 
   // =========================================================
   // UPDATE STATUS
@@ -226,11 +238,9 @@ export default function EnquiriesPage() {
       setTimeout(() => {
         setSuccessMessage("");
       }, 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(
-        err?.message || "Failed to update enquiry."
-      );
+      setError(err instanceof Error ? err.message : "Failed to update enquiry.");
     } finally {
       setUpdatingId(null);
     }
@@ -394,9 +404,10 @@ export default function EnquiriesPage() {
 
             <select
               value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value)
-              }
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setHasManualStatusFilter(true);
+              }}
               style={{
                 padding: "12px 14px",
                 borderRadius: "8px",
@@ -423,6 +434,7 @@ export default function EnquiriesPage() {
               onClick={() => {
                 setSearch("");
                 setStatusFilter("ALL");
+                setHasManualStatusFilter(true);
               }}
               style={{
                 padding: "12px 18px",

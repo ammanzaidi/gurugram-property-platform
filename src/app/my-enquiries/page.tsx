@@ -136,7 +136,7 @@ export default function MyEnquiriesPage() {
             }, 6000);
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(
           "MY ENQUIRIES LOAD ERROR:",
           error
@@ -144,8 +144,7 @@ export default function MyEnquiriesPage() {
 
         if (isMounted) {
           setError(
-            error?.message ||
-              "Failed to load your enquiries."
+            error instanceof Error ? error.message : "Failed to load your enquiries."
           );
         }
       } finally {
@@ -309,6 +308,7 @@ export default function MyEnquiriesPage() {
 
 {notifications.length > 0 && (
   <div
+    id="notifications"
     style={{
       background: "white",
       borderRadius: "16px",

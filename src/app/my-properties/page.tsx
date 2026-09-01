@@ -3,133 +3,34 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type Property = {
-  id: number;
-  propertyType: string;
-  bhk: string;
-  sector: string;
-  monthlyRent: number;
-  status: string;
-  createdAt: string;
-  media: { id: number; type: string; secureUrl: string; position: number }[];
-};
+type Property = { id: number; propertyType: string; bhk: string; sector: string; monthlyRent: number; status: string; createdAt: string; media: { id: number; type: string; secureUrl: string; position: number }[] };
+type Summary = { totalProperties: number; activeListings: number; pendingReview: number; totalEnquiries: number; upcomingVisits: number; completedVisits: number };
+type OperationalEnquiry = { id: number; status: string; visitDate: string | null; visitTime: string | null; createdAt: string; property: { id: number; bhk: string; propertyType: string; sector: string; societyName: string } };
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function statusClass(status: string) {
-  if (status === "AVAILABLE") return "bg-emerald-50 text-emerald-700";
-  if (status === "REJECTED") return "bg-red-50 text-red-700";
-  return "bg-amber-50 text-amber-700";
-}
+function statusClass(status: string) { return status === "AVAILABLE" ? "bg-emerald-50 text-emerald-700" : status === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"; }
 
 export default function MyPropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [recentEnquiries, setRecentEnquiries] = useState<OperationalEnquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadProperties() {
-      try {
-        const response = await fetch("/api/my-properties", {
-          credentials: "include",
-          cache: "no-store",
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || "Failed to load your properties.");
-        }
-        setProperties(result.properties || []);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to load your properties.");
-      } finally {
-        setLoading(false);
-      }
-    }
+  useEffect(() => { async function loadDashboard() { try {
+    const [propertiesResponse, dashboardResponse] = await Promise.all([fetch("/api/my-properties", { credentials: "include", cache: "no-store" }), fetch("/api/owner/dashboard", { credentials: "include", cache: "no-store" })]);
+    const [propertiesResult, dashboardResult] = await Promise.all([propertiesResponse.json(), dashboardResponse.json()]);
+    if (!propertiesResponse.ok || !propertiesResult.success) throw new Error(propertiesResult.error || "Failed to load your properties.");
+    if (!dashboardResponse.ok || !dashboardResult.success) throw new Error(dashboardResult.error || "Failed to load your dashboard.");
+    setProperties(propertiesResult.properties || []); setSummary(dashboardResult.summary); setRecentEnquiries(dashboardResult.recentEnquiries || []);
+  } catch (error) { setError(error instanceof Error ? error.message : "Failed to load your dashboard."); } finally { setLoading(false); } } loadDashboard(); }, []);
 
-    loadProperties();
-  }, []);
-
-  return (
-    <main className="app-page dashboard-page min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
-            Gurugram<span className="text-slate-500">Property</span>
-          </Link>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
-            <Link href="/list-property">List a property</Link>
-            <Link href="/">Home</Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">Owner dashboard</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">My Properties</h1>
-            <p className="mt-3 text-slate-500">Manage your listings, details, and property media.</p>
-          </div>
-          <Link href="/list-property" className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">
-            Add Property
-          </Link>
-        </div>
-
-        {loading && <div className="mt-8 rounded-2xl bg-white p-8 text-center text-slate-500">Loading your properties...</div>}
-        {!loading && error && <div className="mt-8 rounded-2xl bg-red-50 p-5 text-red-700">{error}</div>}
-        {!loading && !error && properties.length === 0 && (
-          <div className="mt-8 rounded-2xl bg-white p-10 text-center">
-            <h2 className="text-xl font-bold">You have no properties yet</h2>
-            <p className="mt-2 text-slate-500">Create your first listing to start managing it here.</p>
-            <Link href="/list-property" className="mt-6 inline-block rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white">List a Property</Link>
-          </div>
-        )}
-
-        {!loading && !error && properties.length > 0 && (
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
-            {properties.map((property) => {
-              const firstImage = property.media.find((media) => media.type === "IMAGE");
-              const photoCount = property.media.filter((media) => media.type === "IMAGE").length;
-              const videoCount = property.media.filter((media) => media.type === "VIDEO").length;
-              return (
-                <article key={property.id} className="min-w-0 overflow-hidden rounded-2xl bg-white shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1">
-                  <div className="grid sm:grid-cols-[180px_1fr]">
-                    <div className="flex min-h-44 items-center justify-center bg-slate-200 sm:min-h-full overflow-hidden">
-                      {firstImage ? <img src={firstImage.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="h-full min-h-44 w-full object-cover transition duration-200 hover:scale-105" /> : <div className="media-fallback" aria-label="Property preview"><span>Gurugram living</span></div>}
-                    </div>
-                    <div className="min-w-0 p-5 sm:p-6">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">Property #{property.id}</p>
-                          <h2 className="mt-1 break-words text-xl font-bold">{property.bhk} {property.propertyType}</h2>
-                          <p className="mt-1 break-words text-sm text-slate-500">{property.sector}, Gurugram</p>
-                        </div>
-                        <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusClass(property.status)}`}>{property.status}</span>
-                      </div>
-                      <p className="mt-5 text-2xl font-bold">₹{property.monthlyRent.toLocaleString("en-IN")} <span className="text-sm font-normal text-slate-400">/ month</span></p>
-                      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                        <span>{photoCount} photo{photoCount === 1 ? "" : "s"}</span>
-                        <span>{videoCount} video{videoCount === 1 ? "" : "s"}</span>
-                        <span>Added {formatDate(property.createdAt)}</span>
-                      </div>
-                      <div className="mt-5 flex flex-wrap gap-3">
-                        <Link href={`/my-properties/${property.id}`} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">Edit & Manage</Link>
-                        {property.status === "AVAILABLE" && <Link href={`/property/${property.id}`} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">View Public</Link>}
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-    </main>
-  );
+  const stats = summary ? [["My properties", summary.totalProperties], ["Active listings", summary.activeListings], ["Pending review", summary.pendingReview], ["Property enquiries", summary.totalEnquiries], ["Upcoming visits", summary.upcomingVisits], ["Completed visits", summary.completedVisits]] : [];
+  return <main className="app-page min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-900">
+    <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"><Link href="/" className="text-xl font-semibold tracking-tight">Gurugram<span className="text-slate-500">Property</span></Link><div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600"><Link href="/dashboard">Dashboards</Link><Link href="/list-property">List a property</Link><Link href="/">Home</Link></div></div></header>
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12"><div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl bg-gradient-to-r from-slate-950 to-blue-900 p-6 text-white shadow-xl sm:p-8"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">Owner workspace</p><h1 className="mt-2 text-3xl font-bold sm:text-4xl">My Properties</h1><p className="mt-2 text-sm text-slate-300">Review listing status and operational enquiry and visit activity.</p></div><Link href="/list-property" className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900">Add Property</Link></div>
+      {loading && <div className="mt-8 rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">Loading your dashboard...</div>}{!loading && error && <div className="mt-8 rounded-2xl bg-red-50 p-5 text-red-700">{error}</div>}
+      {!loading && !error && <><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{stats.map(([label, value]) => <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold">{value}</p></div>)}</div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2"><section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><h2 className="text-lg font-bold">Recent property activity</h2><p className="mt-1 text-sm text-slate-500">Operational status only; tenant personal details are never shown here.</p>{recentEnquiries.length === 0 ? <p className="mt-5 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">No enquiry or visit activity for your listings yet.</p> : <div className="mt-4 divide-y divide-slate-100">{recentEnquiries.map((enquiry) => <div key={enquiry.id} className="py-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-semibold">{enquiry.property.bhk} {enquiry.property.propertyType}</p><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{enquiry.status.replaceAll("_", " ")}</span></div><p className="mt-1 text-sm text-slate-500">{enquiry.property.societyName} · {enquiry.property.sector}</p>{enquiry.visitDate && <p className="mt-2 text-sm text-slate-600">Visit: {enquiry.visitDate}{enquiry.visitTime ? ` at ${enquiry.visitTime}` : ""}</p>}</div>)}</div>}</section><section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><h2 className="text-lg font-bold">Listing status</h2><p className="mt-1 text-sm text-slate-500">Changes are reviewed before a listing becomes public.</p><div className="mt-5 space-y-3"><p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">Available listings are visible to tenants. Pending listings are awaiting review. Edit a listing to update its details or media.</p><Link href="/list-property" className="inline-flex rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">List another property</Link></div></section></div>
+      {properties.length === 0 ? <div className="mt-6 rounded-2xl bg-white p-10 text-center shadow-sm"><h2 className="text-xl font-bold">You have no properties yet</h2><p className="mt-2 text-slate-500">Create your first listing to start managing it here.</p><Link href="/list-property" className="mt-6 inline-block rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white">List a Property</Link></div> : <section className="mt-6"><div className="flex items-end justify-between gap-4"><div><h2 className="text-2xl font-bold">My listings</h2><p className="mt-1 text-sm text-slate-500">Manage property details and media.</p></div></div><div className="mt-5 grid gap-5 lg:grid-cols-2">{properties.map((property) => { const image = property.media.find((media) => media.type === "IMAGE"); return <article key={property.id} className="min-w-0 overflow-hidden rounded-2xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg"><div className="grid sm:grid-cols-[180px_1fr]"><div className="flex min-h-44 items-center justify-center overflow-hidden bg-slate-200">{image ? <img src={image.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="h-full min-h-44 w-full object-cover" /> : <div className="media-fallback"><span>Gurugram living</span></div>}</div><div className="min-w-0 p-5 sm:p-6"><div className="flex flex-wrap justify-between gap-3"><div className="min-w-0"><p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">Property #{property.id}</p><h3 className="mt-1 truncate text-xl font-bold">{property.bhk} {property.propertyType}</h3><p className="mt-1 text-sm text-slate-500">{property.sector}, Gurugram</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusClass(property.status)}`}>{property.status}</span></div><p className="mt-5 text-2xl font-bold">₹{property.monthlyRent.toLocaleString("en-IN")} <span className="text-sm font-normal text-slate-400">/ month</span></p><div className="mt-5 flex flex-wrap gap-3"><Link href={`/my-properties/${property.id}`} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">Edit & Manage</Link>{property.status === "AVAILABLE" && <Link href={`/property/${property.id}`} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">View Public</Link>}</div></div></div></article>; })}</div></section>}</>}</section>
+  </main>;
 }

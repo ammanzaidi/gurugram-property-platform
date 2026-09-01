@@ -1,18 +1,130 @@
 import Link from "next/link";
+import { getCurrentSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 const dashboards = [
-  { label: "ADMIN", title: "Admin Dashboard", description: "Manage leads, properties, owners, tenants, and visits.", href: "/admin", tone: "dashboard-card-admin", items: ["Leads", "Properties", "Owners", "Tenants", "Visits"] },
-  { label: "OWNER", title: "Owner Dashboard", description: "Manage your properties and property activity.", href: "/my-properties", tone: "dashboard-card-owner", items: ["My Properties", "Property Enquiries", "Visits", "Performance"] },
-  { label: "TENANT", title: "Tenant Dashboard", description: "Track your enquiries and property visits.", href: "/my-enquiries", tone: "dashboard-card-tenant", items: ["My Enquiries", "Track Visits", "Saved Properties", "Notifications"] },
+  {
+    label: "ADMIN",
+    title: "Admin Dashboard",
+    description: "Platform operations, properties, leads, and user management.",
+    href: "/admin",
+    tone: "bg-gradient-to-br from-slate-900 to-slate-800",
+    items: ["Overview", "Properties", "Tenant Leads", "Visits", "Owners", "Tenants"],
+  },
+  {
+    label: "OWNER",
+    title: "Owner Dashboard",
+    description: "Manage your properties, track enquiries, and monitor visits.",
+    href: "/my-properties",
+    tone: "bg-gradient-to-br from-blue-600 to-blue-700",
+    items: ["My Properties", "Enquiries", "Visit Requests", "Performance"],
+  },
+  {
+    label: "TENANT",
+    title: "Tenant Dashboard",
+    description: "Search properties, track enquiries, and schedule visits.",
+    href: "/my-enquiries",
+    tone: "bg-gradient-to-br from-emerald-600 to-emerald-700",
+    items: ["My Enquiries", "My Visits", "Visit tracking", "Notifications"],
+  },
 ];
 
-export default function DashboardSelectionPage() {
+export default async function DashboardSelectionPage() {
+  const session = await getCurrentSession();
+  if (!session) redirect("/login?redirect=/dashboard");
+  const currentRole = session.user.role.toUpperCase();
+
   return (
-    <main className="app-page dashboard-selection min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b bg-white"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6"><Link href="/" className="text-xl font-bold">Gurugram<span className="text-slate-500">Property</span></Link><Link href="/" className="text-sm font-semibold text-slate-600">Back to home</Link></div></header>
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="max-w-2xl"><p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">GurugramProperty workspace</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Choose a dashboard</h1><p className="mt-4 text-lg leading-7 text-slate-500">Select the workspace you want to open. Your account permissions are checked again on every dashboard.</p></div>
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">{dashboards.map((dashboard) => <Link key={dashboard.label} href={dashboard.href} className={`dashboard-card ${dashboard.tone} rounded-3xl p-7 text-white transition duration-200 hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-amber-400 sm:p-8`} aria-label={`Open ${dashboard.title}`}><div className="dashboard-card-icon" aria-hidden="true">{dashboard.label === "ADMIN" ? "A" : dashboard.label === "OWNER" ? "O" : "T"}</div><p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-white/65">{dashboard.label}</p><h2 className="mt-2 text-2xl font-bold">{dashboard.title}</h2><p className="mt-3 min-h-14 text-sm leading-6 text-white/75">{dashboard.description}</p><ul className="mt-6 space-y-2 border-t border-white/15 pt-5 text-sm text-white/85">{dashboard.items.map((item) => <li key={item}>{item}</li>)}</ul><span className="mt-8 inline-flex items-center rounded-full bg-white px-4 py-2.5 text-sm font-bold text-slate-900">Open dashboard <span className="ml-2" aria-hidden="true">→</span></span></Link>)}</div>
+    <main className="app-page dashboard-selection min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
+      <header className="border-b border-slate-200 bg-white shadow-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
+          <Link href="/" className="text-xl font-bold">
+            Gurugram<span className="text-slate-500">Property</span>
+          </Link>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-slate-900">{session.user.name}</p>
+            <p className="text-xs text-slate-500">{session.user.role}</p>
+          </div>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
+            GurugramProperty Platform
+          </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+            Choose Your Workspace
+          </h1>
+          <p className="mt-4 text-lg leading-7 text-slate-600">
+            Select the dashboard that matches your role. Your permissions are verified on every access.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          {dashboards.map((dashboard) => {
+            const allowed = dashboard.label === currentRole;
+            return <Link
+              key={dashboard.label}
+              href={dashboard.href}
+              className={`group relative ${dashboard.tone} rounded-3xl p-8 text-white transition duration-300 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-blue-400 ${allowed ? "hover:-translate-y-2 hover:shadow-2xl" : "opacity-75 hover:opacity-90"}`}
+              aria-label={allowed ? `Open ${dashboard.title}` : `${dashboard.title} requires a ${dashboard.label.toLowerCase()} account`}
+            >
+              {/* Background accent */}
+              <div className="absolute inset-0 rounded-3xl bg-white/5 opacity-0 transition group-hover:opacity-100" />
+
+              {/* Content */}
+              <div className="relative">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/10 text-lg font-bold">
+                  {dashboard.label === "ADMIN"
+                    ? "⚙️"
+                    : dashboard.label === "OWNER"
+                      ? "🏠"
+                      : "🔍"}
+                </div>
+
+                <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-white/70">
+                  {dashboard.label}
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold">{dashboard.title}</h2>
+
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/80">
+                  {dashboard.description}
+                </p>
+
+                <ul className="mt-6 space-y-2 border-t border-white/20 pt-5 text-sm text-white/75">
+                  {dashboard.items.map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <span className="text-white/40">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+                <span className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-900 transition group-hover:bg-slate-50">
+                  {allowed ? "Open dashboard" : "Access restricted"}{" "}
+                  <span aria-hidden="true" className="transition group-hover:translate-x-1">
+                    →
+                  </span>
+                </span>
+              </div>
+            </Link>;
+          })}
+        </div>
+
+        <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+          {currentRole === "TENANT" && <p className="mb-4 text-sm text-slate-600"><Link href="/my-enquiries#notifications" className="font-semibold text-blue-600 hover:text-blue-700">Open my notifications</Link></p>}
+          <p className="text-sm text-slate-600">
+            <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700">
+              Switch accounts
+            </Link>
+            {" "}or{" "}
+            <Link href="/" className="font-semibold text-slate-900 hover:text-slate-700">
+              back to home
+            </Link>
+          </p>
+        </div>
       </section>
     </main>
   );

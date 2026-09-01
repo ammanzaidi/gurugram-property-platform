@@ -60,6 +60,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (session.user.role.toUpperCase() !== "TENANT") {
+      return NextResponse.json(
+        { success: false, error: "Only tenant accounts can submit enquiries." },
+        { status: 403 }
+      );
+    }
+
     const data = await request.json();
 
     const propertyId = Number(data.propertyId);
@@ -129,16 +136,16 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("========== ENQUIRY POST ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
+    console.error("Message:", error instanceof Error ? error.message : "Unknown error");
     console.error("========================================");
 
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to submit enquiry.",
+        error: error instanceof Error ? error.message : "Failed to submit enquiry.",
       },
       { status: 500 }
     );
@@ -210,7 +217,7 @@ export async function GET() {
     // ADMIN CHECK
     // -------------------------------------------------------
 
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role.toUpperCase() !== "ADMIN") {
       return NextResponse.json(
         {
           success: false,
@@ -256,16 +263,16 @@ export async function GET() {
       success: true,
       enquiries,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("========== ENQUIRY GET ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
+    console.error("Message:", error instanceof Error ? error.message : "Unknown error");
     console.error("========================================");
 
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to load enquiries.",
+        error: error instanceof Error ? error.message : "Failed to load enquiries.",
       },
       { status: 500 }
     );
