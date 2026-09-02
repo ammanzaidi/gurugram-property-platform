@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
 
 // =========================================================
 // PATCH /api/enquiries/[id]
-// ADMIN ONLY
+// ADMIN OR OWNER ONLY
 // Update enquiry status + visit details
 // =========================================================
 
@@ -77,14 +77,16 @@ export async function PATCH(
     }
 
     // -------------------------------------------------------
-    // ADMIN CHECK
+    // ADMIN OR OWNER CHECK
     // -------------------------------------------------------
 
-    if (session.user.role.toUpperCase() !== "ADMIN") {
+    const role = session.user.role.toUpperCase();
+
+    if (!["ADMIN", "OWNER"].includes(role)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Access denied. Admin access required.",
+          error: "Access denied. Admin or owner access required.",
         },
         { status: 403 }
       );
@@ -173,6 +175,23 @@ export async function PATCH(
         },
         { status: 404 }
       );
+    }
+
+    if (role === "OWNER") {
+      const property = await prisma.property.findUnique({
+        where: { id: existingEnquiry.propertyId },
+        select: { ownerId: true },
+      });
+
+      if (!property || property.ownerId !== session.user.id) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "You can only update enquiries for your own properties.",
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // -------------------------------------------------------

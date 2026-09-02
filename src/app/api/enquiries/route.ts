@@ -214,14 +214,16 @@ export async function GET() {
     }
 
     // -------------------------------------------------------
-    // ADMIN CHECK
+    // ADMIN OR OWNER CHECK
     // -------------------------------------------------------
 
-    if (session.user.role.toUpperCase() !== "ADMIN") {
+    const role = session.user.role.toUpperCase();
+
+    if (!["ADMIN", "OWNER"].includes(role)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Access denied. Admin access required.",
+          error: "Access denied. Admin or owner access required.",
         },
         { status: 403 }
       );
@@ -232,11 +234,21 @@ export async function GET() {
     // -------------------------------------------------------
 
     const enquiries = await prisma.enquiry.findMany({
+      where: role === "OWNER" ? { property: { is: { ownerId: session.user.id } } } : undefined,
       orderBy: {
         createdAt: "desc",
       },
-
-      include: {
+      select: {
+        id: true,
+        name: role === "ADMIN",
+        phone: role === "ADMIN",
+        email: role === "ADMIN",
+        message: role === "ADMIN",
+        moveInDate: true,
+        status: true,
+        visitDate: true,
+        visitTime: true,
+        createdAt: true,
         property: {
           select: {
             id: true,
@@ -246,10 +258,9 @@ export async function GET() {
             monthlyRent: true,
             societyName: true,
 
-            // PRIVATE OWNER DETAILS
-            ownerName: true,
-            ownerPhone: true,
-            ownerEmail: true,
+            ownerName: role === "ADMIN",
+            ownerPhone: role === "ADMIN",
+            ownerEmail: role === "ADMIN",
           },
         },
       },
@@ -261,6 +272,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
+      viewerRole: role,
       enquiries,
     });
   } catch (error: unknown) {

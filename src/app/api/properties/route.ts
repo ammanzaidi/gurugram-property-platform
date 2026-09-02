@@ -239,6 +239,73 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
 
+    const requestedPropertyId = searchParams.get("id") || searchParams.get("propertyId") || "";
+
+    if (requestedPropertyId) {
+      const parsedId = Number(requestedPropertyId);
+
+      if (!Number.isInteger(parsedId) || parsedId <= 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid property ID.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const property = await prisma.property.findUnique({
+        where: {
+          id: parsedId,
+          status: "AVAILABLE",
+        },
+        select: {
+          id: true,
+          propertyType: true,
+          bhk: true,
+          sector: true,
+          monthlyRent: true,
+
+          furnishing: true,
+          furnishingDetails: true,
+
+          areaSqFt: true,
+          vastu: true,
+
+          availableFrom: true,
+
+          societyName: true,
+          description: true,
+          media: {
+            select: {
+              id: true,
+              type: true,
+              secureUrl: true,
+              position: true,
+            },
+            orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          },
+
+          createdAt: true,
+        },
+      });
+
+      if (!property) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Property not found.",
+          },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        property,
+      });
+    }
+
     const location = searchParams.get("location")?.trim() || "";
     const propertyType = searchParams.get("propertyType")?.trim() || "";
     const budget = searchParams.get("budget")?.trim() || "";

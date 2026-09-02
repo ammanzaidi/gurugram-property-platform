@@ -5,10 +5,10 @@ import { useSearchParams } from "next/navigation";
 
 type Enquiry = {
   id: number;
-  name: string;
-  phone: string;
+  name?: string;
+  phone?: string;
   email: string | null;
-  message: string | null;
+  message?: string | null;
   moveInDate: string | null;
   status: string;
   visitDate: string | null;
@@ -22,9 +22,9 @@ type Enquiry = {
     sector: string;
     monthlyRent: number;
     societyName: string;
-    ownerName: string;
-    ownerPhone: string;
-    ownerEmail: string;
+    ownerName?: string;
+    ownerPhone?: string;
+    ownerEmail?: string;
   };
 };
 
@@ -42,6 +42,7 @@ function EnquiriesPageContent() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [viewerRole, setViewerRole] = useState("ADMIN");
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -90,6 +91,7 @@ function EnquiriesPageContent() {
         const list: Enquiry[] = result.enquiries || [];
 
         setEnquiries(list);
+        setViewerRole(result.viewerRole || "ADMIN");
 
         const statusMap: Record<number, string> = {};
         const dateMap: Record<number, string> = {};
@@ -132,8 +134,8 @@ function EnquiriesPageContent() {
 
       const matchesSearch =
         !searchText ||
-        enquiry.name.toLowerCase().includes(searchText) ||
-        enquiry.phone.toLowerCase().includes(searchText) ||
+        enquiry.name?.toLowerCase().includes(searchText) ||
+        enquiry.phone?.toLowerCase().includes(searchText) ||
         String(enquiry.id).includes(searchText) ||
         String(enquiry.property.id).includes(searchText) ||
         enquiry.property.societyName
@@ -385,9 +387,9 @@ function EnquiriesPageContent() {
               gap: "12px",
             }}
           >
-            <input
+              <input
               type="text"
-              placeholder="Search name, phone, property ID, society..."
+              placeholder={viewerRole === "OWNER" ? "Search property ID, society..." : "Search name, phone, property ID, society..."}
               value={search}
               onChange={(e) =>
                 setSearch(e.target.value)
@@ -872,21 +874,26 @@ function EnquiriesPageContent() {
                   >
                     <h3>Tenant Details</h3>
 
-                    <p>
-                      <strong>Name:</strong>{" "}
-                      {enquiry.name}
-                    </p>
-
-                    <p>
-                      <strong>Phone:</strong>{" "}
-                      {enquiry.phone}
-                    </p>
-
-                    <p>
-                      <strong>Email:</strong>{" "}
-                      {enquiry.email ||
-                        "Not provided"}
-                    </p>
+                    {viewerRole === "OWNER" ? (
+                      <p style={{ color: "#64748b" }}>
+                        Tenant contact details are kept private.
+                      </p>
+                    ) : (
+                      <>
+                        <p>
+                          <strong>Name:</strong>{" "}
+                          {enquiry.name}
+                        </p>
+                        <p>
+                          <strong>Phone:</strong>{" "}
+                          {enquiry.phone}
+                        </p>
+                        <p>
+                          <strong>Email:</strong>{" "}
+                          {enquiry.email || "Not provided"}
+                        </p>
+                      </>
+                    )}
 
                     <p>
                       <strong>Move-in:</strong>{" "}
@@ -948,7 +955,7 @@ function EnquiriesPageContent() {
 
                 {/* OWNER */}
 
-                <div
+                {viewerRole === "ADMIN" && <div
                   style={{
                     marginTop: "20px",
                     background: "#fff7ed",
@@ -985,11 +992,11 @@ function EnquiriesPageContent() {
                         .ownerEmail
                     }
                   </p>
-                </div>
+                </div>}
 
                 {/* MESSAGE */}
 
-                {enquiry.message && (
+                {viewerRole === "ADMIN" && enquiry.message && (
                   <div
                     style={{
                       marginTop: "20px",
