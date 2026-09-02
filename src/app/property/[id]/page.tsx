@@ -50,6 +50,22 @@ type Property = {
   createdAt: string;
 };
 
+function formatPropertyDate(value: string | null | undefined) {
+  if (!value) return "Not specified";
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(parsed);
+}
+
 export default function PropertyDetails() {
   // =======================================================
   // GET PROPERTY ID FROM URL
@@ -66,6 +82,7 @@ export default function PropertyDetails() {
   // =======================================================
   const [property, setProperty] = useState<Property | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   // Page load hone tak loading message show hoga.
   const [loading, setLoading] = useState(true);
@@ -79,23 +96,22 @@ export default function PropertyDetails() {
   useEffect(() => {
     async function loadProperty() {
       try {
-        // API se properties fetch karna
-        const response = await fetch("/api/properties");
+        const response = await fetch(`/api/properties?id=${encodeURIComponent(String(id))}`, {
+          cache: "no-store",
+        });
 
         const result = await response.json();
 
-        // Agar API successfully data return kare
-        if (result.success) {
-          // URL ki ID ke according property find karna
-          const foundProperty = result.properties.find(
-            (item: Property) => item.id === id
-          );
-
-          setProperty(foundProperty || null);
+        if (result.success && result.property) {
+          setProperty(result.property as Property);
+          return;
         }
+
+        setProperty(null);
       } catch (error) {
         // Debugging ke liye terminal mein error show hoga.
         console.error("Failed to load property:", error);
+        setProperty(null);
       } finally {
         // Loading complete
         setLoading(false);
@@ -108,15 +124,22 @@ export default function PropertyDetails() {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (property) {
+      setImageLoadError(false);
+    }
+  }, [property]);
+
   // =======================================================
   // LOADING SCREEN
   // =======================================================
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-500">
-          Loading property...
-        </p>
+      <main className={styles.page}>
+        <div className={styles.loadingState}>
+          <span className={styles.loadingMark} aria-hidden="true" />
+          <p className="text-slate-500">Loading property...</p>
+        </div>
       </main>
     );
   }
@@ -126,8 +149,8 @@ export default function PropertyDetails() {
   // =======================================================
   if (!property) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="text-center">
+      <main className={styles.page}>
+        <div className={styles.emptyState}>
 
           <h1 className="text-3xl font-bold">
             Property Not Found
@@ -149,8 +172,8 @@ export default function PropertyDetails() {
     );
   }
 
-  const images = property.media.filter((media) => media.type === "IMAGE");
-  const videos = property.media.filter((media) => media.type === "VIDEO");
+  const images = (property.media ?? []).filter((media) => media.type === "IMAGE");
+  const videos = (property.media ?? []).filter((media) => media.type === "VIDEO");
   const activeImage = images[activeImageIndex];
 
   function showPreviousImage() {
@@ -169,17 +192,17 @@ export default function PropertyDetails() {
   // MAIN PROPERTY PAGE
   // =======================================================
   return (
-    <main className="min-h-screen min-w-0 overflow-x-clip bg-slate-50 font-sans text-slate-900">
+    <main className={`${styles.page} min-h-screen min-w-0 overflow-x-clip font-sans text-slate-900`}>
 
       {/* =====================================================
           HEADER
       ====================================================== */}
-      <header className="border-b bg-white">
+      <header className={styles.siteHeader}>
 
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-6">
 
           {/* WEBSITE LOGO */}
-          <a href="/" className="text-xl font-semibold tracking-tight">
+          <a href="/" className={styles.logo}>
             Gurugram
             <span className="text-slate-500">
               Property
@@ -189,7 +212,7 @@ export default function PropertyDetails() {
           {/* BACK TO PROPERTIES */}
           <a
             href="/properties"
-            className="text-sm font-medium leading-5 text-slate-600"
+            className={styles.backLink}
           >
             ← Back to properties
           </a>
@@ -200,22 +223,23 @@ export default function PropertyDetails() {
       {/* =====================================================
           PROPERTY CONTENT
       ====================================================== */}
-      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+      <section className={styles.content}>
 
-        <div className="grid min-w-0 gap-8 lg:grid-cols-2">
+        <div className={styles.layout}>
 
           {/* =================================================
               PROPERTY IMAGE AREA
           ================================================== */}
           {(activeImage || videos.length > 0) && (
-            <div className="min-w-0 max-w-full rounded-3xl bg-slate-200 p-2 sm:p-4">
-              {activeImage && (
+            <div className={styles.galleryPanel}>
+              {activeImage && !imageLoadError && (
                 <>
-                  <div className="relative flex min-h-[260px] max-w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-950 sm:min-h-[420px]">
+                  <div className={styles.heroImageFrame}>
                     <img
                       src={activeImage.secureUrl}
                       alt={`${property.bhk} ${property.propertyType}`}
-                      className="h-full max-h-[560px] max-w-full object-contain"
+                      onError={() => setImageLoadError(true)}
+                      className={styles.heroImage}
                     />
 
                     {images.length > 1 && (
@@ -223,29 +247,32 @@ export default function PropertyDetails() {
                         <button
                           type="button"
                           onClick={showPreviousImage}
-                          className="absolute left-2 rounded-full bg-black/60 px-2 py-2 text-xs font-semibold leading-5 tracking-[0.01em] text-white sm:left-4 sm:px-4 sm:py-3 sm:text-sm"
+                          aria-label="Show previous image"
+                          className={`${styles.galleryButton} left-3 sm:left-5`}
                         >
-                          Previous
+                          <span aria-hidden="true">←</span>
                         </button>
                         <button
                           type="button"
                           onClick={showNextImage}
-                          className="absolute right-2 rounded-full bg-black/60 px-2 py-2 text-xs font-semibold leading-5 tracking-[0.01em] text-white sm:right-4 sm:px-4 sm:py-3 sm:text-sm"
+                          aria-label="Show next image"
+                          className={`${styles.galleryButton} right-3 sm:right-5`}
                         >
-                          Next
+                          <span aria-hidden="true">→</span>
                         </button>
                       </>
                     )}
                   </div>
 
                   {images.length > 1 && (
-                    <div className="mt-4 flex max-w-full gap-3 overflow-x-auto pb-1">
+                    <div className={styles.thumbnailRail}>
                       {images.map((image, index) => (
                         <button
                           key={image.id}
                           type="button"
                           onClick={() => setActiveImageIndex(index)}
-                          className={`h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 ${
+                          aria-label={`Show property image ${index + 1}`}
+                          className={`${styles.thumbnail} ${
                             index === activeImageIndex
                               ? "border-slate-900"
                               : "border-transparent"
@@ -264,7 +291,7 @@ export default function PropertyDetails() {
               )}
 
               {videos.length > 0 && (
-                <div className="mt-5 grid gap-4">
+                <div className={styles.videoList}>
                   {videos.map((video) => (
                     <video
                       key={video.id}
@@ -278,17 +305,19 @@ export default function PropertyDetails() {
             </div>
           )}
 
-          {!activeImage && (
-          <div className="flex min-h-[300px] max-w-full items-center justify-center rounded-3xl bg-slate-200 sm:min-h-[500px]">
+          {(!activeImage || imageLoadError) && (
+          <div className={styles.mediaFallback}>
 
             <div className="text-center">
 
-              <div className="text-7xl">
-                🏠
-              </div>
+              <div className={styles.fallbackIcon} aria-hidden="true">⌂</div>
 
-              <p className="mt-4 text-sm text-slate-500">
-                Property Images
+              <p className={styles.fallbackTitle}>
+                Images unavailable
+              </p>
+
+              <p className={styles.fallbackText}>
+                Media for this listing has not been provided.
               </p>
 
             </div>
@@ -299,11 +328,11 @@ export default function PropertyDetails() {
           {/* =================================================
               PROPERTY DETAILS
           ================================================== */}
-          <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1 sm:p-8">
+          <div className={styles.detailsPanel}>
 
             {/* VERIFIED BADGE */}
-            <span className={`inline-block rounded-full bg-emerald-50 px-4 py-2 text-emerald-600 ${styles.verifiedBadge}`}>
-              ✓ Verified Property
+            <span className={styles.verifiedBadge}>
+              <span aria-hidden="true">✓</span> Verified Property
             </span>
 
             {/* PROPERTY TITLE */}
@@ -322,7 +351,7 @@ export default function PropertyDetails() {
             {/* =================================================
                 MONTHLY RENT
             ================================================== */}
-            <div className="mt-8">
+            <div className={styles.rentBlock}>
 
               <p className={styles.rentLabel}>
                 Monthly Rent
@@ -344,10 +373,10 @@ export default function PropertyDetails() {
             {/* =================================================
                 BASIC PROPERTY DETAILS
             ================================================== */}
-            <div className="mt-8 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={styles.detailGrid}>
 
               {/* PROPERTY TYPE */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Property
@@ -360,7 +389,7 @@ export default function PropertyDetails() {
               </div>
 
               {/* BHK */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Bedrooms
@@ -373,7 +402,7 @@ export default function PropertyDetails() {
               </div>
 
               {/* AREA */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Area
@@ -388,7 +417,7 @@ export default function PropertyDetails() {
               </div>
 
               {/* FURNISHING */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Furnishing
@@ -401,7 +430,7 @@ export default function PropertyDetails() {
               </div>
 
               {/* VASTU */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Vastu
@@ -414,14 +443,14 @@ export default function PropertyDetails() {
               </div>
 
               {/* AVAILABLE FROM */}
-              <div className="rounded-2xl bg-slate-50 p-5 transition duration-200 hover:shadow-sm hover:bg-white">
+              <div className={styles.detailCard}>
 
                 <p className={styles.detailLabel}>
                   Available From
                 </p>
 
                 <p className={styles.detailValue}>
-                  {property.availableFrom}
+                  {formatPropertyDate(property.availableFrom)}
                 </p>
 
               </div>
@@ -526,9 +555,10 @@ export default function PropertyDetails() {
               */}
               <a
                 href={`/contact?propertyId=${property.id}`}
-                className="mt-6 block w-full rounded-2xl bg-slate-900 py-4 text-center font-semibold leading-6 tracking-[0.01em] text-white hover:bg-slate-700"
+                className={styles.contactButton}
               >
-                Contact Us
+                <span>Contact our property team</span>
+                <span aria-hidden="true">→</span>
               </a>
 
             </div>
