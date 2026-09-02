@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Property = {
   id: number;
@@ -10,7 +12,10 @@ type Property = {
   sector: string;
   monthlyRent: number;
   furnishing: string;
-  societyName: string;
+  areaSqFt?: number | null;
+  societyName?: string | null;
+  availableFrom?: string | null;
+  description?: string | null;
   media: {
     id: number;
     type: string;
@@ -28,6 +33,7 @@ type User = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -118,7 +124,7 @@ export default function Home() {
 
       if (data.success) {
         setUser(null);
-        window.location.href = "/login";
+        router.push("/login");
       } else {
         alert(data.error || "Logout failed.");
       }
@@ -144,7 +150,7 @@ export default function Home() {
       params.set("budget", budget);
     }
 
-    window.location.href = `/properties?${params.toString()}`;
+    router.push(`/properties?${params.toString()}`);
   }
 
   return (
@@ -435,62 +441,73 @@ export default function Home() {
 
               {!propertiesLoading && !propertiesError && properties.length > 0 && (
                 <div className="grid gap-6 md:grid-cols-3">
-
                   {properties.slice(0, 3).map((property) => {
                     const firstImage = property.media?.find((media) => media.type === "IMAGE");
+                    const propertyTitle = `${property.bhk} ${property.propertyType}`;
+                    const areaLabel = property.areaSqFt ? `${property.areaSqFt} sq ft` : "Area on request";
+
                     return (
-
-                      <article
+                      <Link
                         key={property.id}
-                        className="property-card overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
+                        href={`/property/${property.id}`}
+                        className="group block overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
+                        aria-label={`View details for ${propertyTitle} in ${property.sector}`}
                       >
-
                         <div className="property-media relative flex h-56 items-end overflow-hidden bg-slate-200 p-5">
                           {firstImage ? (
-                            <img src={firstImage.secureUrl} alt={`${property.bhk} ${property.propertyType}`} className="absolute inset-0 h-full w-full object-cover" />
-                          ) : <div className="property-media-grid absolute inset-0" aria-hidden="true"></div>}
-                          <div className="property-media-shade absolute inset-0" aria-hidden="true"></div>
+                            <Image
+                              src={firstImage.secureUrl}
+                              alt={`${propertyTitle} in ${property.sector}`}
+                              fill
+                              unoptimized
+                              className="object-cover transition duration-300 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300" aria-hidden="true" />
+                          )}
+                          <div className="property-media-shade absolute inset-0" aria-hidden="true" />
                           <div className="relative z-10">
-                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">{property.societyName}</p>
-                            <p className="mt-1 text-lg font-semibold text-white">{property.sector}, Gurugram</p>
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+                              {property.societyName || "Gurugram Property"}
+                            </p>
+                            <p className="mt-1 text-lg font-semibold text-white">{property.sector}</p>
                           </div>
-                          <span className="property-media-badge absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white">{property.bhk}</span>
+                          <span className="property-media-badge absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-white">
+                            {property.bhk}
+                          </span>
                         </div>
 
                         <div className="p-6">
-
                           <div className="flex items-start justify-between gap-4">
-
                             <div className="min-w-0">
-
-                              <h3 className="text-lg font-bold">{property.bhk} {property.propertyType}</h3>
-
-                              <p className="mt-1 truncate text-sm text-slate-500">{property.societyName}</p>
-
+                              <h3 className="text-lg font-bold text-slate-900">{propertyTitle}</h3>
+                              <p className="mt-1 text-sm text-slate-500">{property.sector}, Gurugram</p>
                             </div>
-
                             <div className="shrink-0 text-right">
-
-                              <p className="font-bold">₹{property.monthlyRent.toLocaleString("en-IN")}</p>
-
-                              <p className="text-xs text-slate-400">/ month</p>
-
+                              <p className="text-lg font-bold text-slate-900">₹{property.monthlyRent.toLocaleString("en-IN")}</p>
+                              <p className="text-[11px] text-slate-400">/ month</p>
                             </div>
-
                           </div>
 
-                          <div className="mt-5 flex items-center justify-between gap-3">
-
-                            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">{property.furnishing}</span>
-                            <span className="text-xs font-medium text-slate-400">{property.bhk}</span>
-
+                          <div className="mt-5 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                              {property.furnishing}
+                            </span>
+                            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                              {areaLabel}
+                            </span>
                           </div>
 
-                          <Link href={`/property/${property.id}`} className="mt-6 flex items-center justify-center rounded-xl border border-slate-200 py-3 text-sm font-bold transition hover:bg-slate-900 hover:text-white">View Property <span className="ml-2" aria-hidden="true">→</span></Link>
-
+                          <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                            <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+                              {property.availableFrom || "Available now"}
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-sm font-bold text-slate-900">
+                              View Details <span aria-hidden="true">→</span>
+                            </span>
+                          </div>
                         </div>
-
-                      </article>
+                      </Link>
                     );
                   })}
                 </div>

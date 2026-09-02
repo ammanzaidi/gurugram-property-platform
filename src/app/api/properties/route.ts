@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma";
+import { Prisma, PrismaClient } from "@/generated/prisma";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { cookies } from "next/headers";
+
+function normalizeSectorQuery(value: string) {
+  return value
+    .replace(/\s*,\s*gurugram\s*$/i, "")
+    .replace(/^sector\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 // =========================================================
 // DATABASE CONNECTION
@@ -175,7 +183,9 @@ export async function POST(request: Request) {
   },
   { status: 201 }
 );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to save property";
+
     // -------------------------------------------------------
     // ERROR HANDLING
     // -------------------------------------------------------
@@ -183,15 +193,13 @@ export async function POST(request: Request) {
     // detailed error show hoga.
     console.error("========== PROPERTY CREATION ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
-    console.error("Code:", error?.code);
-    console.error("Meta:", error?.meta);
+    console.error("Message:", message);
     console.error("=============================================");
 
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to save property",
+        error: message,
       },
       { status: 500 }
     );
@@ -239,24 +247,21 @@ export async function GET(request: Request) {
     // BUILD SEARCH FILTER
     // =====================================================
 
-    const where: any = {
+    const where: Prisma.PropertyWhereInput = {
       status: "AVAILABLE",
     };
 
     // Location search
-    // Example: Sector 67
+    // Example: Sector 67 or 67
     if (location) {
-  const normalizedLocation = location
-    .replace(/^sector\s*/i, "")
-    .replace(/,\s*gurugram$/i, "")
-    .trim();
+      const normalizedLocation = normalizeSectorQuery(location);
 
-  if (normalizedLocation) {
-    where.sector = {
-      contains: normalizedLocation,
-    };
-  }
-}
+      if (normalizedLocation) {
+        where.sector = {
+          contains: normalizedLocation,
+        };
+      }
+    }
 
     // Property type filter
     if (propertyType && propertyType !== "Any Property") {
@@ -358,13 +363,12 @@ export async function GET(request: Request) {
       properties,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to search properties";
 
     console.error("========== PROPERTY SEARCH ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
-    console.error("Code:", error?.code);
-    console.error("Meta:", error?.meta);
+    console.error("Message:", message);
     console.error("==========================================");
 
     return NextResponse.json(

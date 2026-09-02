@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type Enquiry = {
@@ -37,7 +37,7 @@ const STATUS_OPTIONS = [
   "CLOSED",
 ];
 
-export default function EnquiriesPage() {
+function EnquiriesPageContent() {
   const searchParams = useSearchParams();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1015,5 +1015,21 @@ export default function EnquiriesPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function EnquiriesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-50">
+          <div className="rounded-2xl border border-slate-200 bg-white px-8 py-6 text-sm text-slate-500 shadow-sm">
+            Loading enquiries...
+          </div>
+        </main>
+      }
+    >
+      <EnquiriesPageContent />
+    </Suspense>
   );
 }
