@@ -148,52 +148,27 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            {/* Notification Preferences */}
+            {/* Notification Delivery */}
             <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-              <h2 className="text-lg font-bold">Notification Preferences</h2>
+              <h2 className="text-lg font-bold">Notification Delivery</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Configure how you receive platform notifications
+                How platform updates are delivered to your account
               </p>
 
-              <div className="mt-6 space-y-4">
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked
-                    disabled
-                    className="h-4 w-4 rounded border-slate-300"
-                  />
-                  <span className="text-sm text-slate-700">
-                    New property submissions
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-semibold text-slate-900">In-app notifications</p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Platform updates appear in the relevant dashboard when available.
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                    Active
                   </span>
-                </label>
-
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked
-                    disabled
-                    className="h-4 w-4 rounded border-slate-300"
-                  />
-                  <span className="text-sm text-slate-700">
-                    Pending tenant leads
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked
-                    disabled
-                    className="h-4 w-4 rounded border-slate-300"
-                  />
-                  <span className="text-sm text-slate-700">
-                    Visit requests and updates
-                  </span>
-                </label>
-
+                </div>
                 <p className="mt-4 text-xs text-slate-500">
-                  Notification settings are currently managed by the platform. Contact the administrator to customize preferences.
+                  Notification preferences are not configurable in this account. No email or SMS settings are stored here.
                 </p>
               </div>
             </div>

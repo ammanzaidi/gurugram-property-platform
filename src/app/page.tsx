@@ -37,6 +37,7 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("Any Property");
   const [budget, setBudget] = useState("Any Budget");
@@ -124,6 +125,7 @@ export default function Home() {
 
       if (data.success) {
         setUser(null);
+        setMobileMenuOpen(false);
         router.push("/login");
       } else {
         alert(data.error || "Logout failed.");
@@ -178,7 +180,7 @@ export default function Home() {
 
           {/* NAVIGATION */}
 
-          <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 md:gap-5 lg:gap-8">
+          <nav className="hidden flex-wrap items-center justify-end gap-2 sm:flex sm:gap-3 md:gap-5 lg:gap-8">
 
             <a
               href="#properties"
@@ -266,7 +268,105 @@ export default function Home() {
 
           </nav>
 
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold sm:hidden"
+          >
+            <span className="flex w-4 flex-col gap-1" aria-hidden="true">
+              <span className="h-0.5 w-full bg-slate-900" />
+              <span className="h-0.5 w-full bg-slate-900" />
+              <span className="h-0.5 w-full bg-slate-900" />
+            </span>
+            Menu
+          </button>
+
         </div>
+
+        {mobileMenuOpen && (
+          <div id="mobile-navigation" className="border-t border-slate-200 bg-white px-4 py-4 sm:hidden">
+            <nav className="mx-auto flex max-w-7xl flex-col gap-1" aria-label="Mobile navigation">
+              <a
+                href="#properties"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+              >
+                Find Property
+              </a>
+              <a
+                href="#locations"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+              >
+                Locations
+              </a>
+              <a
+                href="#how"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+              >
+                How It Works
+              </a>
+              <a
+                href="/list-property"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+              >
+                List a Property
+              </a>
+
+              {checkingAuth ? (
+                <span className="px-4 py-3 text-sm text-slate-400">Loading...</span>
+              ) : user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+                  >
+                    Dashboard
+                  </Link>
+                  {user.role.toUpperCase() === "TENANT" && (
+                    <Link
+                      href="/my-visits"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+                    >
+                      My Visits
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="rounded-xl px-4 py-3 text-left text-sm font-semibold hover:bg-slate-100 disabled:opacity-50"
+                  >
+                    {loggingOut ? "Logging out..." : "Logout"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+                  >
+                    Login
+                  </a>
+                  <a
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-semibold hover:bg-slate-100"
+                  >
+                    Sign Up
+                  </a>
+                </>
+              )}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* =====================================================
