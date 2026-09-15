@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 type Property = {
   id: number;
   propertyType: string;
@@ -33,10 +34,12 @@ function PropertiesPageContent() {
   const budget = searchParams.get("budget");
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadProperties() {
       try {
+        setError("");
         const params = new URLSearchParams();
 
 if (location) {
@@ -56,9 +59,13 @@ const response = await fetch(`/api/properties?${params.toString()}`);
 
         if (result.success) {
           setProperties(result.properties);
+        } else {
+          throw new Error(result.error || "Failed to load properties.");
         }
       } catch (error) {
         console.error("Failed to load properties:", error);
+        setProperties([]);
+        setError(error instanceof Error ? error.message : "Failed to load properties.");
       } finally {
         setLoading(false);
       }
@@ -72,9 +79,9 @@ const response = await fetch(`/api/properties?${params.toString()}`);
       {/* HEADER */}
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold">
             Gurugram<span className="text-slate-500">Property</span>
-          </a>
+          </Link>
 
           <a
             href="/list-property"
@@ -108,8 +115,15 @@ const response = await fetch(`/api/properties?${params.toString()}`);
           </div>
         )}
 
+        {!loading && error && (
+          <div className="rounded-2xl border border-red-100 bg-red-50 p-10 text-center text-red-700">
+            <h2 className="text-xl font-bold">Properties are unavailable</h2>
+            <p className="mt-2">{error}</p>
+          </div>
+        )}
+
         {/* NO PROPERTIES */}
-        {!loading && properties.length === 0 && (
+        {!loading && !error && properties.length === 0 && (
           <div className="rounded-2xl bg-white p-10 text-center">
             <h2 className="text-xl font-bold">
               No properties available
@@ -129,7 +143,7 @@ const response = await fetch(`/api/properties?${params.toString()}`);
         )}
 
         {/* PROPERTY CARDS */}
-        {!loading && properties.length > 0 && (
+        {!loading && !error && properties.length > 0 && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {properties.map((property) => (
               <div

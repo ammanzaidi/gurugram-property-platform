@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import styles from "@/app/property/property.module.css";
 
 // =========================================================
@@ -76,6 +77,7 @@ export default function PropertyDetails() {
   // Yahan id = 2 milega.
   const params = useParams();
   const id = Number(params.id);
+  const validId = Number.isInteger(id) && id > 0;
 
   // =======================================================
   // PAGE STATE
@@ -85,7 +87,7 @@ export default function PropertyDetails() {
   const [imageLoadError, setImageLoadError] = useState(false);
 
   // Page load hone tak loading message show hoga.
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(validId);
 
   // =======================================================
   // LOAD PROPERTY
@@ -103,6 +105,7 @@ export default function PropertyDetails() {
         const result = await response.json();
 
         if (result.success && result.property) {
+          setImageLoadError(false);
           setProperty(result.property as Property);
           return;
         }
@@ -118,17 +121,11 @@ export default function PropertyDetails() {
       }
     }
 
-    // Valid ID hone par hi property load karenge.
-    if (id) {
+    // Invalid IDs resolve to the existing not-found state instead of waiting forever.
+    if (validId) {
       loadProperty();
     }
-  }, [id]);
-
-  useEffect(() => {
-    if (property) {
-      setImageLoadError(false);
-    }
-  }, [property]);
+  }, [id, validId]);
 
   // =======================================================
   // LOADING SCREEN
@@ -160,12 +157,12 @@ export default function PropertyDetails() {
             This property does not exist or has been removed.
           </p>
 
-          <a
+            <Link
             href="/properties"
             className="mt-6 inline-block rounded-xl bg-slate-900 px-6 py-3 font-bold text-white"
           >
             Back to Properties
-          </a>
+            </Link>
 
         </div>
       </main>
@@ -175,6 +172,7 @@ export default function PropertyDetails() {
   const images = (property.media ?? []).filter((media) => media.type === "IMAGE");
   const videos = (property.media ?? []).filter((media) => media.type === "VIDEO");
   const activeImage = images[activeImageIndex];
+  const hasMedia = images.length > 0 || videos.length > 0;
 
   function showPreviousImage() {
     setActiveImageIndex((current) =>
@@ -202,20 +200,20 @@ export default function PropertyDetails() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-6">
 
           {/* WEBSITE LOGO */}
-          <a href="/" className={styles.logo}>
+          <Link href="/" className={styles.logo}>
             Gurugram
             <span className="text-slate-500">
               Property
             </span>
-          </a>
+          </Link>
 
           {/* BACK TO PROPERTIES */}
-          <a
+          <Link
             href="/properties"
             className={styles.backLink}
           >
             ← Back to properties
-          </a>
+          </Link>
 
         </div>
       </header>
@@ -305,7 +303,7 @@ export default function PropertyDetails() {
             </div>
           )}
 
-          {(!activeImage || imageLoadError) && (
+          {(!hasMedia || imageLoadError) && (
           <div className={styles.mediaFallback}>
 
             <div className="text-center">

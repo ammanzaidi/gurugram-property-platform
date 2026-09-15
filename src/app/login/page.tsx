@@ -2,11 +2,12 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: identifier,
           password,
         }),
       });
@@ -40,14 +41,13 @@ export default function LoginPage() {
 
       setSuccess("Login successful!");
 
-      // Temporary client-side user information.
-      // Proper secure session/cookie authentication
-      // next step mein add karenge.
-      localStorage.setItem("user", JSON.stringify(result.user));
+      const requestedRedirect = new URLSearchParams(window.location.search).get("redirect");
+      const redirectTarget = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+        ? requestedRedirect
+        : "/";
 
-      // Owner ko property listing page par bhejna.
       setTimeout(() => {
-        router.push("/");
+        router.push(redirectTarget);
       }, 500);
     } catch (error) {
       console.error("Login error:", error);
@@ -67,10 +67,10 @@ export default function LoginPage() {
       {/* HEADER */}
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold">
             Gurugram
             <span className="text-slate-500">Property</span>
-          </a>
+          </Link>
 
           <a
             href="/register"
@@ -102,20 +102,20 @@ export default function LoginPage() {
             {/* EMAIL */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="identifier"
                 className="mb-2 block text-sm font-bold"
               >
-                Email
+                Email or phone
               </label>
 
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="your@email.com"
+                id="identifier"
+                type="text"
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                placeholder="your@email.com or 10 digit phone"
                 required
-                autoComplete="email"
+                autoComplete="username"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-900"
               />
             </div>
@@ -167,13 +167,13 @@ export default function LoginPage() {
 
           {/* REGISTER LINK */}
           <p className="mt-6 text-center text-sm text-slate-500">
-            Don't have an account?{" "}
-            <a
+            Don&apos;t have an account?{" "}
+            <Link
               href="/register"
               className="font-bold text-slate-900"
             >
               Create Account
-            </a>
+            </Link>
           </p>
         </div>
       </section>

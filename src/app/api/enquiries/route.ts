@@ -70,9 +70,9 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     const propertyId = Number(data.propertyId);
-    const name = data.name?.trim();
-    const phone = data.phone?.trim();
-    const email = data.email?.trim().toLowerCase();
+    const name = session.user.name;
+    const phone = session.user.phone;
+    const email = session.user.email;
     const message = data.message?.trim();
     const moveInDate = data.moveInDate?.trim();
 
@@ -89,6 +89,7 @@ export async function POST(request: Request) {
     const property = await prisma.property.findUnique({
       where: {
         id: propertyId,
+        status: "AVAILABLE",
       },
     });
 
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to submit enquiry.",
+        error: "Failed to submit enquiry.",
       },
       { status: 500 }
     );

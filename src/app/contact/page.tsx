@@ -9,8 +9,9 @@ function ContactContent() {
 
   const propertyId = searchParams.get("propertyId");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(propertyId));
   const [authenticated, setAuthenticated] = useState(false);
+  const [role, setRole] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -49,6 +50,7 @@ function ContactContent() {
 
           // Logged-in user ki information automatically fill karo
           if (result.user) {
+            setRole(result.user.role || "");
             setName(result.user.name || "");
             setPhone(result.user.phone || "");
             setEmail(result.user.email || "");
@@ -75,8 +77,6 @@ function ContactContent() {
 
     if (propertyId) {
       checkLogin();
-    } else {
-      setLoading(false);
     }
   }, [propertyId, router]);
 
@@ -164,6 +164,25 @@ function ContactContent() {
     return (
       <main style={{ padding: "40px" }}>
         <h1>Redirecting to login...</h1>
+      </main>
+    );
+  }
+
+  if (role.toUpperCase() !== "TENANT") {
+    return (
+      <main className="app-page min-h-screen px-5 py-12 sm:px-8">
+        <div className="mx-auto max-w-xl rounded-2xl bg-white p-8 text-center shadow-sm">
+          <h1 className="text-2xl font-bold">Tenant account required</h1>
+          <p className="mt-3 text-slate-500">
+            Property enquiries can only be submitted from a tenant account.
+          </p>
+          <a
+            href="/dashboard"
+            className="mt-6 inline-block rounded-xl bg-slate-900 px-5 py-3 font-bold text-white"
+          >
+            Back to dashboard
+          </a>
+        </div>
       </main>
     );
   }

@@ -28,18 +28,18 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    const email = data.email?.trim().toLowerCase();
+    const identifier = data.email?.trim().toLowerCase();
     const password = data.password;
 
     // -------------------------------------------------------
     // VALIDATION
     // -------------------------------------------------------
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
         {
           success: false,
-          error: "Email and password are required.",
+          error: "Email or phone and password are required.",
         },
         { status: 400 }
       );
@@ -50,9 +50,9 @@ export async function POST(request: Request) {
     // -------------------------------------------------------
 
     const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+      where: identifier.includes("@")
+        ? { email: identifier }
+        : { phone: identifier },
     });
 
     if (!user) {
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("User logged in:", user.email);
+    console.log("User logged in:", user.email || user.phone);
 
     // -------------------------------------------------------
     // CREATE RESPONSE
@@ -148,14 +148,14 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // -------------------------------------------------------
     // ERROR HANDLING
     // -------------------------------------------------------
 
     console.error("========== LOGIN ERROR ==========");
     console.error(error);
-    console.error("Message:", error?.message);
+    console.error("Message:", error instanceof Error ? error.message : "Unknown error");
     console.error("=================================");
 
     return NextResponse.json(

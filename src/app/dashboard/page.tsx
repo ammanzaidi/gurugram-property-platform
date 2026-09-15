@@ -64,12 +64,9 @@ export default async function DashboardSelectionPage() {
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {dashboards.map((dashboard) => {
             const allowed = dashboard.label === currentRole;
-            return <Link
-              key={dashboard.label}
-              href={dashboard.href}
-              className={`group relative ${dashboard.tone} rounded-3xl p-8 text-white transition duration-300 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-blue-400 ${allowed ? "hover:-translate-y-2 hover:shadow-2xl" : "opacity-75 hover:opacity-90"}`}
-              aria-label={allowed ? `Open ${dashboard.title}` : `${dashboard.title} requires a ${dashboard.label.toLowerCase()} account`}
-            >
+            const cardClassName = `group relative ${dashboard.tone} rounded-3xl p-8 text-white transition duration-300 ${allowed ? "hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-blue-400" : "cursor-not-allowed opacity-75"}`;
+            const cardContent = (
+              <>
               {/* Background accent */}
               <div className="absolute inset-0 rounded-3xl bg-white/5 opacity-0 transition group-hover:opacity-100" />
 
@@ -109,7 +106,18 @@ export default async function DashboardSelectionPage() {
                   </span>
                 </span>
               </div>
-            </Link>;
+              </>
+            );
+
+            return allowed ? (
+              <Link key={dashboard.label} href={dashboard.href} className={cardClassName} aria-label={`Open ${dashboard.title}`}>
+                {cardContent}
+              </Link>
+            ) : (
+              <div key={dashboard.label} className={cardClassName} aria-disabled="true" aria-label={`${dashboard.title} requires a ${dashboard.label.toLowerCase()} account`}>
+                {cardContent}
+              </div>
+            );
           })}
         </div>
 

@@ -60,9 +60,12 @@ export default function AdminVisitsPage() {
       ? visits
       : visits.filter((visit) => {
           if (filterType === "UPCOMING") {
+            const today = new Date();
+            const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
             return (
               visit.visitDate &&
-              new Date(visit.visitDate) > new Date() &&
+              visit.visitDate >= todayString &&
               visit.status === "VISIT_SCHEDULED"
             );
           }
