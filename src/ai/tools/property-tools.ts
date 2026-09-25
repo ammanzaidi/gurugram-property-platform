@@ -3,6 +3,7 @@ import {
   getAvailablePublicProperties,
   getPublicPropertyDetails,
   searchPublicProperties,
+  comparePublicProperties,
 } from "@/ai/lib/property-data";
 
 type SearchPropertiesInput = {
@@ -61,6 +62,37 @@ export const propertyTools = {
     }),
     execute: async ({ limit }) => ({
       properties: await getAvailablePublicProperties(limit),
+    }),
+  }),
+  compareProperties: tool({
+    description: "Compare two to four AVAILABLE properties by public listing fields only.",
+    inputSchema: jsonSchema<{ propertyIds: number[] }>({
+      type: "object",
+      additionalProperties: false,
+      required: ["propertyIds"],
+      properties: {
+        propertyIds: {
+          type: "array",
+          minItems: 2,
+          maxItems: 4,
+          uniqueItems: true,
+          items: { type: "integer", minimum: 1 },
+        },
+      },
+    }),
+    execute: async ({ propertyIds }) => ({
+      properties: await comparePublicProperties(propertyIds),
+    }),
+  }),
+  propertyEnquiryGuidance: tool({
+    description: "Explain the existing tenant enquiry and visit workflow without creating an enquiry.",
+    inputSchema: jsonSchema<Record<string, never>>({
+      type: "object",
+      additionalProperties: false,
+    }),
+    execute: async () => ({
+      guidance:
+        "To enquire about an available property, sign in with a tenant account, open the property's detail page, and submit the existing enquiry form. The platform records the enquiry for the business team, who coordinates the next steps and visit. The assistant cannot submit enquiries, schedule visits, or provide owner or broker contact details.",
     }),
   }),
 };

@@ -104,3 +104,21 @@ export async function getAvailablePublicProperties(limit = 10) {
 
   return properties as PublicProperty[];
 }
+
+export async function comparePublicProperties(propertyIds: number[]) {
+  const safeIds = [...new Set(propertyIds)]
+    .filter((propertyId) => Number.isInteger(propertyId) && propertyId > 0)
+    .slice(0, 4);
+
+  if (safeIds.length < 2) return [];
+
+  const properties = await prisma.property.findMany({
+    where: { id: { in: safeIds }, status: "AVAILABLE" },
+    select: publicPropertySelect,
+  });
+
+  const propertiesById = new Map(properties.map((property) => [property.id, property]));
+  return safeIds
+    .map((propertyId) => propertiesById.get(propertyId))
+    .filter((property): property is (typeof properties)[number] => Boolean(property)) as PublicProperty[];
+}

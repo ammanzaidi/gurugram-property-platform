@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import AIAssistant from "@/app/components/ai-assistant";
 
 type Property = {
   id: number;
@@ -484,6 +485,8 @@ export default function Home() {
 
         </div>
       </section>
+
+        <AIAssistant />
 
       {/* =====================================================
           LOCATIONS
