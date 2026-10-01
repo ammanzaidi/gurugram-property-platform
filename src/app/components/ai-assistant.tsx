@@ -1,10 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+
+type PropertySuggestion = {
+  id: number;
+  propertyType: string;
+  bhk: string;
+  sector: string;
+  monthlyRent: number;
+  furnishing: string;
+  areaSqFt: number | null;
+  societyName: string | null;
+};
 
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  properties?: PropertySuggestion[];
 };
 
 const suggestedPrompts = [
@@ -19,6 +32,14 @@ export default function AIAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }, [messages, loading]);
 
   async function sendMessage(message: string) {
     const trimmedMessage = message.trim();
@@ -41,7 +62,11 @@ export default function AIAssistant() {
         throw new Error(result.error || "The assistant is unavailable right now.");
       }
 
-      setMessages((current) => [...current, { role: "assistant", content: result.message }]);
+      setMessages((current) => [...current, {
+        role: "assistant",
+        content: result.message,
+        properties: Array.isArray(result.properties) ? result.properties : [],
+      }]);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "The assistant is unavailable right now.");
     } finally {
@@ -82,8 +107,8 @@ export default function AIAssistant() {
             </div>
           </div>
 
-          <div className="flex min-h-92 flex-col rounded-3xl bg-white p-4 sm:p-5">
-            <div className="flex-1 space-y-3 overflow-y-auto" aria-live="polite">
+          <div className="flex h-[36rem] max-h-[calc(100dvh-2rem)] min-h-0 flex-col rounded-3xl bg-white p-4 sm:p-5">
+            <div ref={messagesContainerRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto" aria-live="polite">
               {messages.length === 0 && (
                 <div className="flex h-full min-h-56 items-center justify-center rounded-2xl border border-dashed border-slate-200 px-6 text-center text-sm leading-6 text-slate-500">
                   Ask for a location, budget, BHK, furnishing preference, or visit guidance.
@@ -91,9 +116,46 @@ export default function AIAssistant() {
               )}
               {messages.map((message, index) => (
                 <div key={`${message.role}-${index}`} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <p className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
-                    {message.content}
-                  </p>
+                  <div className="max-w-[96%]">
+                    <p className={`rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "user" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}>
+                      {message.content}
+                    </p>
+                    {message.role === "assistant" && message.properties && message.properties.length > 0 && (
+                      // Property facts and IDs come directly from the server-side public Prisma selection.
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        {message.properties.map((property) => (
+                          <Link
+                            key={property.id}
+                            href={`/property/${property.id}`}
+                            className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                            aria-label={`View details for ${property.bhk} ${property.propertyType} in ${property.sector}`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-bold text-slate-900">
+                                  {property.societyName || "Gurugram Property"}
+                                </p>
+                                <p className="mt-1 text-xs font-semibold text-slate-500">
+                                  {property.bhk} {property.propertyType}
+                                </p>
+                              </div>
+                              <p className="shrink-0 text-sm font-bold text-slate-900">
+                                ₹{property.monthlyRent.toLocaleString("en-IN")}
+                              </p>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold text-slate-600">
+                              <span className="rounded-full bg-slate-100 px-2 py-1">{property.sector}</span>
+                              <span className="rounded-full bg-slate-100 px-2 py-1">{property.furnishing}</span>
+                              {property.areaSqFt && <span className="rounded-full bg-slate-100 px-2 py-1">{property.areaSqFt} sq ft</span>}
+                            </div>
+                            <span className="mt-3 inline-flex text-xs font-bold text-slate-900 group-hover:text-slate-600">
+                              View Property <span aria-hidden="true" className="ml-1">→</span>
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
               {loading && <p className="text-sm text-slate-400">Checking available listings...</p>}
