@@ -41,6 +41,11 @@ function cleanFilter(value: string | undefined, maxLength = 80) {
   return cleaned ? cleaned.slice(0, maxLength) : undefined;
 }
 
+function exactVariants(value: string, prefix: string) {
+  const normalized = value.replace(new RegExp(`^${prefix}\\s*`, "i"), "").trim();
+  return [...new Set([normalized, `${prefix} ${normalized}`, `${prefix.toLowerCase()} ${normalized}`])];
+}
+
 function buildPropertyWhere(filters: PropertySearchFilters): Prisma.PropertyWhereInput {
   const where: Prisma.PropertyWhereInput = { status: "AVAILABLE" };
   const bhk = cleanFilter(filters.bhk, 20);
@@ -48,8 +53,18 @@ function buildPropertyWhere(filters: PropertySearchFilters): Prisma.PropertyWher
   const furnishing = cleanFilter(filters.furnishing, 40);
   const propertyType = cleanFilter(filters.propertyType, 40);
 
-  if (bhk) where.bhk = { contains: bhk };
-  if (sector) where.sector = { contains: sector.replace(/^sector\s*/i, "") };
+  if (bhk) {
+    // Match the requested BHK exactly so a 2 BHK search cannot include 12 BHK listings.
+    where.OR = exactVariants(bhk, "BHK").map((value) => ({ bhk: { equals: value } }));
+  }
+  if (sector) {
+    // Accept stored values such as "67" and "Sector 67", but never broaden to unrelated sectors.
+    const sectorVariants = exactVariants(sector, "Sector");
+    where.AND = [
+      ...(Array.isArray(where.AND) ? where.AND : []),
+      { OR: sectorVariants.map((value) => ({ sector: { equals: value } })) },
+    ];
+  }
   if (furnishing) where.furnishing = { contains: furnishing };
   if (propertyType) where.propertyType = { contains: propertyType };
   if (filters.minRent !== undefined || filters.maxRent !== undefined) {
