@@ -28,6 +28,7 @@ const suggestedPrompts = [
 ];
 
 export default function AIAssistant() {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -80,26 +81,56 @@ export default function AIAssistant() {
   }
 
   return (
-    <section id="assistant" className="homepage-section px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mx-auto max-w-5xl overflow-hidden rounded-4xl bg-slate-950 shadow-2xl">
-        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.82fr_1.18fr] lg:p-10">
-          <div className="flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Your rental guide</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Ask about your next home.</h2>
-              <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">
-                Search live available listings, compare public details, and understand the next step without sharing private contact information.
-              </p>
-            </div>
+    <>
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="ai-assistant-launcher fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-full text-slate-950 shadow-xl transition hover:-translate-y-0.5 hover:shadow-2xl"
+          aria-label="Open AI Property Assistant"
+          aria-controls="assistant"
+          aria-expanded={false}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-7">
+            <path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18l-1.8-5.4L4.5 10.8 10.2 9 12 3.5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+            <path d="m19 15 .9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9L19 15Z" fill="currentColor" />
+          </svg>
+        </button>
+      )}
 
-            <div className="mt-8 flex flex-wrap gap-2 lg:mt-10">
+      {isOpen && (
+        <section
+          id="assistant"
+          className="ai-assistant-panel fixed z-50 flex flex-col overflow-hidden rounded-3xl bg-slate-950 shadow-2xl"
+          role="dialog"
+          aria-labelledby="assistant-title"
+          aria-modal="false"
+        >
+          <header className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4 text-white">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300">Your rental guide</p>
+              <h2 id="assistant-title" className="mt-1 text-lg font-bold">AI Property Assistant</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-xl leading-none text-slate-200 transition hover:bg-white/10 hover:text-white"
+              aria-label="Close AI Property Assistant"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </header>
+
+          <div className="border-b border-slate-100 bg-white px-4 py-3">
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">Try asking</p>
+            <div className="flex flex-wrap gap-2">
               {suggestedPrompts.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => void sendMessage(prompt)}
                   disabled={loading}
-                  className="rounded-full border border-white/15 px-3 py-2 text-left text-xs font-semibold text-slate-200 transition hover:border-amber-300/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-full border border-slate-200 px-3 py-1.5 text-left text-[11px] font-semibold leading-4 text-slate-600 transition hover:border-amber-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {prompt}
                 </button>
@@ -107,10 +138,9 @@ export default function AIAssistant() {
             </div>
           </div>
 
-          <div className="flex h-[36rem] max-h-[calc(100dvh-2rem)] min-h-0 flex-col rounded-3xl bg-white p-4 sm:p-5">
-            <div ref={messagesContainerRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto" aria-live="polite">
+          <div ref={messagesContainerRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-white p-4" aria-live="polite">
               {messages.length === 0 && (
-                <div className="flex h-full min-h-56 items-center justify-center rounded-2xl border border-dashed border-slate-200 px-6 text-center text-sm leading-6 text-slate-500">
+                <div className="flex min-h-28 items-center justify-center rounded-2xl border border-dashed border-slate-200 px-6 text-center text-sm leading-6 text-slate-500">
                   Ask for a location, budget, BHK, furnishing preference, or visit guidance.
                 </div>
               )}
@@ -159,31 +189,30 @@ export default function AIAssistant() {
                 </div>
               ))}
               {loading && <p className="text-sm text-slate-400">Checking available listings...</p>}
-            </div>
-
-            {error && <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>}
-
-            <form onSubmit={handleSubmit} className="mt-4 flex gap-2 border-t border-slate-100 pt-4">
-              <label htmlFor="ai-assistant-message" className="sr-only">Ask the property assistant</label>
-              <input
-                id="ai-assistant-message"
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about available properties..."
-                maxLength={2000}
-                className="min-w-0 flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Ask
-              </button>
-            </form>
           </div>
-        </div>
-      </div>
-    </section>
+
+          {error && <p className="bg-white px-4 pt-2 text-sm text-red-600" role="alert">{error}</p>}
+
+          <form onSubmit={handleSubmit} className="flex gap-2 border-t border-slate-100 bg-white p-4">
+            <label htmlFor="ai-assistant-message" className="sr-only">Ask the property assistant</label>
+            <input
+              id="ai-assistant-message"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="Ask about available properties..."
+              maxLength={2000}
+              className="min-w-0 flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="shrink-0 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Ask
+            </button>
+          </form>
+        </section>
+      )}
+    </>
   );
 }

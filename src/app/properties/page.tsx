@@ -31,6 +31,7 @@ function PropertiesPageContent() {
 
   const location = searchParams.get("location");
   const propertyType = searchParams.get("propertyType");
+  const bhk = searchParams.get("bhk");
   const budget = searchParams.get("budget");
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,10 @@ if (location) {
 
 if (propertyType) {
   params.set("propertyType", propertyType);
+}
+
+if (bhk) {
+  params.set("bhk", bhk);
 }
 
 if (budget) {
@@ -72,7 +77,7 @@ const response = await fetch(`/api/properties?${params.toString()}`);
     }
 
     loadProperties();
-  }, [location, propertyType, budget]);
+  }, [location, propertyType, bhk, budget]);
 
   return (
     <main className="app-page properties-page min-h-screen bg-slate-50">

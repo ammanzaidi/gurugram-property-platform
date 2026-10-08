@@ -308,6 +308,7 @@ export async function GET(request: Request) {
 
     const location = searchParams.get("location")?.trim() || "";
     const propertyType = searchParams.get("propertyType")?.trim() || "";
+    const bhk = searchParams.get("bhk")?.trim() || "";
     const budget = searchParams.get("budget")?.trim() || "";
 
     // =====================================================
@@ -333,6 +334,10 @@ export async function GET(request: Request) {
     // Property type filter
     if (propertyType && propertyType !== "Any Property") {
       where.propertyType = propertyType;
+    }
+
+    if (bhk && bhk !== "Any BHK") {
+      where.bhk = bhk;
     }
 
     // Budget filter
@@ -374,6 +379,7 @@ export async function GET(request: Request) {
     console.log("Property search:", {
       location,
       propertyType,
+      bhk,
       budget,
     });
 

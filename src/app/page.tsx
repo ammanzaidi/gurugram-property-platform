@@ -41,6 +41,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("Any Property");
+  const [bhk, setBhk] = useState("Any BHK");
   const [budget, setBudget] = useState("Any Budget");
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
@@ -147,6 +148,10 @@ export default function Home() {
 
     if (propertyType !== "Any Property") {
       params.set("propertyType", propertyType);
+    }
+
+    if (bhk !== "Any BHK") {
+      params.set("bhk", bhk);
     }
 
     if (budget !== "Any Budget") {
@@ -374,93 +379,67 @@ export default function Home() {
           HERO
       ===================================================== */}
 
-      <section className="hero-shell relative mx-3 min-h-[720px] overflow-hidden rounded-[2rem] bg-slate-950 shadow-2xl sm:mx-5 md:min-h-[780px] lg:mx-6 lg:min-h-[calc(100vh-7rem)]">
-        {/* Background Image with Overlay */}
+      <section className="hero-shell relative mx-3 min-h-[680px] overflow-hidden rounded-[2rem] bg-slate-950 shadow-2xl sm:mx-5 lg:mx-6 lg:min-h-[calc(100vh-7rem)]">
         <div
           className="hero-backdrop absolute inset-0 bg-cover bg-no-repeat"
           style={{
-            backgroundImage: 'url("/gurugram-high-rise.jpg")',
+            backgroundImage: 'url("/gurugram-residential-high-rise.jpg")',
           }}
         >
-          {/* Dark Navy Gradient Overlay */}
           <div className="hero-overlay absolute inset-0"></div>
         </div>
 
-        {/* Hero Content */}
-        <div className="relative mx-auto flex min-h-[720px] max-w-7xl flex-col justify-between px-6 py-12 sm:min-h-[780px] sm:py-16 md:px-12 md:py-20">
+        <div className="relative mx-auto flex min-h-[680px] max-w-7xl flex-col gap-10 px-4 py-6 sm:px-8 sm:py-10 md:gap-14 md:px-12 lg:min-h-[calc(100vh-7rem)] lg:py-12">
+          <div className="hero-search-panel w-full rounded-3xl bg-white p-3 shadow-2xl sm:p-4" aria-label="Search rental properties">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5 lg:gap-2">
+              <label className="min-w-0 rounded-2xl bg-slate-100 px-4 py-3 transition duration-200 hover:bg-slate-50 hover:shadow-sm sm:px-5 sm:py-4">
+                <span className="block text-xs font-bold uppercase text-slate-500">Location / sector</span>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="e.g. Sector 67"
+                  className="mt-2 w-full min-w-0 bg-transparent text-sm text-slate-900 outline-none"
+                />
+              </label>
 
-          {/* Text Content */}
-          <div className="flex flex-col justify-center flex-1 max-w-3xl">
-
-            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">
-              Rental homes in Gurugram
-            </p>
-
-            <h2 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-              Find a place
-              <br />
-              <span className="hero-accent">
-                you can call home.
-              </span>
-            </h2>
-
-            <p className="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
-              Search rental properties in Gurugram and get personal
-              assistance from property search to your actual visit.
-            </p>
-
-          </div>
-
-          {/* SEARCH - Overlapping Box */}
-
-          <div className="relative z-10 -mb-20 mx-auto w-full max-w-4xl">
-            <div className="hero-search-panel rounded-3xl bg-white p-3 shadow-2xl sm:p-4">
-
-              <div className="grid gap-3 grid-cols-1 sm:gap-2 sm:grid-cols-2 lg:grid-cols-4">
-
-              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Location
-                </p>
-
-                
-                  <input
-                type="text"
-               value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Enter location, e.g. Sector 67"
-            className="mt-2 w-full bg-transparent text-sm outline-none transition duration-150"
-/>
-              </div>
-
-              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Property
-                </p>
-
+              <label className="min-w-0 rounded-2xl bg-slate-100 px-4 py-3 transition duration-200 hover:bg-slate-50 hover:shadow-sm sm:px-5 sm:py-4">
+                <span className="block text-xs font-bold uppercase text-slate-500">Property type</span>
                 <select
-  value={propertyType}
-  onChange={(e) => setPropertyType(e.target.value)}
-  className="mt-2 w-full bg-transparent text-sm outline-none transition duration-150"
->
+                  value={propertyType}
+                  onChange={(event) => setPropertyType(event.target.value)}
+                  className="mt-2 w-full min-w-0 bg-transparent text-sm text-slate-900 outline-none"
+                >
                   <option>Any Property</option>
                   <option>Apartment</option>
                   <option>Independent House</option>
                   <option>Villa</option>
                 </select>
+              </label>
 
-              </div>
+              <label className="min-w-0 rounded-2xl bg-slate-100 px-4 py-3 transition duration-200 hover:bg-slate-50 hover:shadow-sm sm:px-5 sm:py-4">
+                <span className="block text-xs font-bold uppercase text-slate-500">BHK</span>
+                <select
+                  value={bhk}
+                  onChange={(event) => setBhk(event.target.value)}
+                  className="mt-2 w-full min-w-0 bg-transparent text-sm text-slate-900 outline-none"
+                >
+                  <option>Any BHK</option>
+                  <option>1 BHK</option>
+                  <option>2 BHK</option>
+                  <option>3 BHK</option>
+                  <option>4 BHK</option>
+                  <option>5+ BHK</option>
+                </select>
+              </label>
 
-              <div className="min-w-0 rounded-2xl bg-slate-100 px-5 py-4 transition duration-200 hover:bg-slate-50 hover:shadow-sm">
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Budget
-                </p>
-
-                <select value={budget} onChange={(e) => setBudget(e.target.value)} className="mt-2 w-full bg-transparent text-sm outline-none transition duration-150"
->
+              <label className="min-w-0 rounded-2xl bg-slate-100 px-4 py-3 transition duration-200 hover:bg-slate-50 hover:shadow-sm sm:px-5 sm:py-4">
+                <span className="block text-xs font-bold uppercase text-slate-500">Budget</span>
+                <select
+                  value={budget}
+                  onChange={(event) => setBudget(event.target.value)}
+                  className="mt-2 w-full min-w-0 bg-transparent text-sm text-slate-900 outline-none"
+                >
                   <option>Any Budget</option>
                   <option>Below ₹20K</option>
                   <option>₹20K - ₹30K</option>
@@ -468,25 +447,38 @@ export default function Home() {
                   <option>₹40K - ₹50K</option>
                   <option>₹50K+</option>
                 </select>
-
-              </div>
+              </label>
 
               <button
-  onClick={handleSearch}
-  className="rounded-2xl bg-slate-900 px-6 py-4 text-sm font-bold text-white transition duration-200 hover:bg-slate-700 hover:-translate-y-1 hover:shadow-lg"
->
-  Search Properties
-</button>
-
-            </div>
-
+                type="button"
+                onClick={handleSearch}
+                className="min-h-16 rounded-2xl bg-slate-900 px-6 py-4 text-sm font-bold text-white transition duration-200 hover:bg-slate-700 hover:shadow-lg"
+              >
+                Search Properties
+              </button>
             </div>
           </div>
 
+          <div className="flex flex-1 flex-col justify-center pb-4 sm:pb-8">
+            <div className="max-w-3xl">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200 sm:text-sm">
+                Rental homes in Gurugram
+              </p>
+              <h2 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+                Find a place
+                <br />
+                <span className="hero-accent">you can call home.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:mt-6 sm:text-lg sm:leading-8">
+                Search rental properties in Gurugram and get personal
+                assistance from property search to your actual visit.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-        <AIAssistant />
+      <AIAssistant />
 
       {/* =====================================================
           LOCATIONS
